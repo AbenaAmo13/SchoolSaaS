@@ -1,0 +1,3 @@
+authenticationUrls ={
+    'signUp': 'api/register/'
+}

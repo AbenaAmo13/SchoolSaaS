@@ -9,13 +9,14 @@ const Signup = () => {
     const handleSignup = async (e) => {
         e.preventDefault();
         try {
-            baseUrl = process.env.REACT_DJANGO_BASE_URL
+            let baseUrl = process.env.REACT_APP_DJANGO_API_URL
             console.log(baseUrl)
-            const response = await axios.post(`http://${baseUrl}}/accounts/register/`, {
+            const response = await axios.post(`${baseUrl}/api/register/`, {
                 username,
                 email,
                 password,
             });
+            console.log(response)
             alert("Signup successful!");
         } catch (error) {
             console.error(error);
