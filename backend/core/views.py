@@ -18,10 +18,11 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data
-            print(user)
+            user_information = UserSerializer(user).data
             refresh = RefreshToken.for_user(user)
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
+                'user_information': user_information
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
