@@ -6,7 +6,7 @@ class UserSerializer(serializers.ModelSerializer):
     groups = serializers.StringRelatedField(many=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ['id', 'username', 'email', 'groups']
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
