@@ -6,10 +6,14 @@ from django.contrib.auth.models import Group
 class UserSerializer(serializers.ModelSerializer):
     school = serializers.PrimaryKeyRelatedField(queryset=School.objects.all(), required=False, allow_null=True)
     password = serializers.CharField(write_only=True)  # Add password field, write_only so it doesn't get exposed
+    is_staff = serializers.BooleanField(required=False, default=False)  # Handle is_staff explicitly
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'school', 'role', 'password']
+        fields = ['id', 'username', 'email', 'school', 'role', 'password', 'is_staff']
         read_only_fields=['id']
+
+
 
 class SchoolSerializer(serializers.ModelSerializer):
     modules = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), many=True)
@@ -35,10 +39,7 @@ class CreateSchoolAndAdminSerializer(serializers.Serializer):
         school = School.objects.create(**school_data)
         # Set the modules for the school if provided
         if modules:
-            print('school has modules \n')
-            print(modules)
             school.modules.set(modules)  # Use set() to add modules after the school is created
-
         # Create the user, associating it with the created school
         user_data['school'] = school
         user = User.objects.create_user(**user_data)
