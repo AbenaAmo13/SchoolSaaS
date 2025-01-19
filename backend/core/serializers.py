@@ -7,7 +7,7 @@ class UserSerializer(serializers.ModelSerializer):
     school = serializers.PrimaryKeyRelatedField(queryset=School.objects.all())
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'school']
+        fields = ['id', 'username', 'email', 'school', 'role']
 
 class SchoolSerialiser(serializers.ModelSerializer):
     modules = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), many=True)
@@ -27,14 +27,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'password', 'role', 'school']
 
     def create(self, validated_data):
-        school_id = validated_data['school']
-        found_school = School.objects.get(pk=school_id)
+        school = validated_data['school']
+        #found_school = School.objects.get(pk=school_id)
         user = User.objects.create_user(
             username=validated_data['username'],
-            email=validated_data['email'],
+            email=validated_data.get('email', ''),
             password=validated_data['password'], 
             role=validated_data['role'],
-            school= found_school
+            school= school
         )
        
         return user

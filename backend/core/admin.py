@@ -20,7 +20,7 @@ class CustomUserAdmin(UserAdmin):
         (
             None,
             {
-                "fields": ["username", "email", "password", "role"],
+                "fields": ["username", "email", "password", "role", "school"],
             },
         ),
          (

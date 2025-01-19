@@ -6,14 +6,24 @@ from core.utils.utils import add_license_key, generate_unique_school_code_with_c
 from .models import School, User
 
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import generics, permissions
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 
 class RegisterView(APIView):
+    permission_classes = [permissions.AllowAny]
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+            user_information = UserSerializer(user).data
+            refresh = RefreshToken.for_user(user)
+            response ={
+                 'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'user_information': user_information
+            }
+
+            return Response(response, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
