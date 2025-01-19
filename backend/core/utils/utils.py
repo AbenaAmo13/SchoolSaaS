@@ -52,6 +52,7 @@ def generate_unique_school_code_with_check():
     unique_code = generate_unique_school_code()
     while True:
         exists = School.objects.filter(unique_school_code=unique_code).exist()
+        print(exists)
         if exists:
             continue
         return unique_code

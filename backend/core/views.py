@@ -7,7 +7,7 @@ from .models import School, User
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics, permissions
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, SchoolSerializer, CreateSchoolAndAdminSerializer
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -27,38 +27,53 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CreateSchool(APIView):
+class CreateSchoolAndAdminView1(APIView):
     def post(self, request):
-        request_data = request.data
-        admin_user_data= request_data.pop('admin_user_data')
-        # Add logic to generate the license key
-        license_key = generate_license_key()  # Generate a random license key
-        # Include the generated license_key in the request data to be serialized
-        request_data['license_key'] = license_key
-        # Serialize the incoming data
-        serializer = SchoolSerializer(data=request_data)
-        # Validate and save the data if valid
-        if serializer.is_valid() :
-            # Save the new school object
-            school = serializer.save()
+         # Extract school and user data
+        data = request.data
+        school_data = data.pop('school')
+        user_data = data.pop('user')
+        # Create school
+        # Deserialize the incoming data
+        school_serializer = SchoolSerializer(data=school_data)
+        user_serializer = UserSerializer(data=user_data)
+        if school_serializer.is_valid() and user_serializer.is_valid():
+            # If data is valid, create both the school and user
+            school = school_serializer.save()
             school_data = SchoolSerializer(school).data
             school_id= school_data.get('id')
 
-            #Create admin user for the school
-            admin_user_data['school'] = school
-            user_serialiser = UserSerializer(data = admin_user_data)
-            if user_serialiser.is_valid():
-                user = user_serialiser.save()
-                response_data = {
-                    "school": serializer.data,
-                    "user": user_serialiser.data
-                }
-                # Return the created school object with a 201 status
-                return Response(response_data, status=status.HTTP_201_CREATED)
-        # If validation fails, return errors with a 400 status
+            user_data['school'] = school_id
+            user_serializer = UserSerializer(data=user_data)
+            user = user_serializer.save()
+
+
+            # Return both school and user in the response
+            return Response({
+                "school": school_data,
+                "user": UserSerializer(user).data
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class CreateSchoolAndAdminView(APIView):
+    def post(self, request):
+        # Deserialize the incoming data
+        serializer = CreateSchoolAndAdminSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            # If data is valid, create both the school and user
+            result = serializer.save()
+
+            # Return both school and user in the response
+            return Response({
+                "school": SchoolSerializer(result['school']).data,
+                "user": UserSerializer(result['user']).data
+            }, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
+    permission_classes = [permissions.AllowAny]
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
