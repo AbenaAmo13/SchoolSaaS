@@ -5,13 +5,16 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter ,  Routes, Route } from "react-router";
 import Signup from './Authentication/SignUp';
+import AuthLayout from './Authentication/AuthLayout';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
   <Routes>
       <Route path="/" element={<App />} />
-      <Route path="/signUp" element={<Signup />} />
+      <Route element={<AuthLayout />}>
+        <Route path="register" element={<Signup />} />
+      </Route>
 
     </Routes>
 
