@@ -4,12 +4,15 @@ export const loginFormFields = [
         label: 'Username',
         type: 'text',
         required: true,
+        icon: 'user',  // Font Awesome user icon
     },
       {
         name: 'password',
         label: 'Password',
         type: 'password',
         required: true,
+        icon: 'lock',  // Font Awesome lock icon
+
       },
 ]
 export const createSchoolFormFields=[
@@ -18,11 +21,14 @@ export const createSchoolFormFields=[
         label: 'School Name',
         type: 'text',
         required: true,
+        icon: 'school'
+
     },
     {
         name: 'email',
         label: 'Email',
         type: 'text',
+        icon: 'envelope',  // Font Awesome envelope icon
         required: true,
     },
     {
@@ -30,6 +36,7 @@ export const createSchoolFormFields=[
         label: 'Contact Number',
         type: 'text',
         required: true,
+        icon : 'phone'
     },
     {
         name: 'school_acronym',
@@ -43,5 +50,6 @@ export const createSchoolFormFields=[
         type: 'checkbox',
         checked: 'checked',
         required: true,
+        icon: 'certificate'
     },
 ]

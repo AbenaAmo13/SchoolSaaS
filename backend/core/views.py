@@ -3,14 +3,21 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from core.utils.utils import add_license_key, generate_unique_school_code_with_check
-from .models import School, User
+from .models import School, User, ApplicationModules
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics, permissions
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, SchoolSerializer, CreateSchoolAndAdminSerializer
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, SchoolSerializer, CreateSchoolAndAdminSerializer, ApplicationModulesSerializer
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
+    def get(self, request):
+        data = ApplicationModules.objects.all()
+        response_data = ApplicationModulesSerializer(data, many=True)
+        print(response_data.data)
+        return Response(response_data.data, status=status.HTTP_201_CREATED)
+
+
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -28,6 +35,7 @@ class RegisterView(APIView):
 
 
 class CreateSchoolAndAdminView1(APIView):
+
     def post(self, request):
          # Extract school and user data
         data = request.data

@@ -48,8 +48,11 @@ const Form = ({ endpoint, fields, onSuccess, onError }) => {
     <form onSubmit={handleSubmit} className="form">
       <div className='form-container'>
         {fields.map(field => (
-          <div key={field.name} className="form-group">
-            <label htmlFor={field.name}>{field.label}</label>
+          <div key={field.name} className={`form-group ${field.type==='checkbox' ? 'flex': ''}` }>
+            <label htmlFor={field.name}>
+            {field.icon && <i className={`fas fa-${field.icon}`}></i>}  {/* Render icon if provided */}
+                {field.label}
+            </label>
 
             {field.type === 'select' ? (
               <select
@@ -73,6 +76,7 @@ const Form = ({ endpoint, fields, onSuccess, onError }) => {
                 value={formData[field.name]}
                 onChange={handleChange}
                 required={field.required}
+                placeholder={field.placeholder || ''}
               />
             )}
           </div>

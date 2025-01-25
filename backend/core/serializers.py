@@ -1,8 +1,12 @@
 from rest_framework import serializers
-from .models import School, User
+from .models import School, User, ApplicationModules
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import Group
 
+class ApplicationModulesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationModules
+        fields = '__all__'
 class UserSerializer(serializers.ModelSerializer):
     school = serializers.PrimaryKeyRelatedField(queryset=School.objects.all(), required=False, allow_null=True)
     password = serializers.CharField(write_only=True)  # Add password field, write_only so it doesn't get exposed
