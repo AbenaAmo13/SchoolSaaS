@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 import  '../Authentication/style/registration.css';
 
-const Form = ({ endpoint, fields, onSuccess, onError }) => {
-  const [formData, setFormData] = useState(() => {
-    // Initialise form data based on fields prop, defaulting to empty strings
-    const initialState = {};
-    fields.forEach(field => {
-      initialState[field.name] = field.type === 'select' ? field.options[0].value : '';
-    });
-    return initialState;
-  });
+const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation }) => {
+  const [formData, setFormData] = useState(generateInitialState || '');
+
+  function generateInitialState() {
+    return fields.reduce((acc, field) => {
+      acc[field.name] = field.type === 'checkbox' ? false : (field.type === 'select' ? field.options[0].value : '');
+      return acc;
+    }, {});
+  }
+
+  console.log(formData.cambridge_certified)
+  useEffect(()=>{
+    setFormData(generateInitialState())
+
+  },[fields])
+
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -32,7 +39,8 @@ const Form = ({ endpoint, fields, onSuccess, onError }) => {
     setError(null); // Reset previous error
 
     try {
-      const response = await axios.post(endpoint, formData);
+      const dataToSubmit = dataManipulation ? dataManipulation(formData) : formData;
+      const response = await axios.post(endpoint, dataToSubmit);
       // If the request is successful, trigger the onSuccess callback
       onSuccess(response.data);
     } catch (err) {
@@ -44,41 +52,32 @@ const Form = ({ endpoint, fields, onSuccess, onError }) => {
     }
   };
 
+  const renderInput = (field) => {
+    const { name, type, label, icon, required, options } = field;
+
+    return type === 'select' ? (
+      <select name={name} value={formData[name]} onChange={handleChange} required={required}>
+        {options.map(option => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    ) : type === 'checkbox' ? (
+      <input type="checkbox" name={name}  onChange={handleChange} required={required} />
+    ) : (
+      <input type={type || 'text'} name={name} value={formData[name]} onChange={handleChange} required={required} placeholder={field.placeholder || ''} />
+    );
+  };
+
   return (
     <form onSubmit={handleSubmit} className="form">
       <div className='form-container'>
         {fields.map(field => (
-          <div key={field.name} className={`form-group ${field.type==='checkbox' ? 'flex': ''}` }>
+          <div key={field.name} className={`form-group ${field.type=='checkbox' ? 'flex': ''}` }>
             <label htmlFor={field.name}>
             {field.icon && <i className={`fas fa-${field.icon}`}></i>}  {/* Render icon if provided */}
                 {field.label}
             </label>
-
-            {field.type === 'select' ? (
-              <select
-                id={field.name}
-                name={field.name}
-                value={formData[field.name]}
-                onChange={handleChange}
-                required={field.required}
-              >
-                {field.options.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                type={field.type || 'text'}
-                id={field.name}
-                name={field.name}
-                value={formData[field.name]}
-                onChange={handleChange}
-                required={field.required}
-                placeholder={field.placeholder || ''}
-              />
-            )}
+            {renderInput(field)}
           </div>
         ))}
         

@@ -6,14 +6,13 @@ export const loginFormFields = [
         required: true,
         icon: 'user',  // Font Awesome user icon
     },
-      {
+    {
         name: 'password',
         label: 'Password',
         type: 'password',
         required: true,
         icon: 'lock',  // Font Awesome lock icon
-
-      },
+    },
 ]
 export const createSchoolFormFields=[
     {
@@ -39,17 +38,39 @@ export const createSchoolFormFields=[
         icon : 'phone'
     },
     {
+        name: 'username',
+        label: 'Admin Username',
+        type: 'text',
+        required: true,
+        icon: 'user',  // Font Awesome user icon
+    },
+    {
+        name: 'password',
+        label: 'Password',
+        type: 'password',
+        required: true,
+        icon: 'lock',  // Font Awesome lock icon
+    },
+    {
         name: 'school_acronym',
         label: 'School Acronym',
         type: 'text',
         required: true,
     },
     {
+        name: 'module',
+        label: 'Module',
+        type: 'select',
+        icon: 'globe',  // Font Awesome globe icon
+        required: true,
+        options: [],
+    },
+    {
         name: 'cambridge_certified',
         label: 'Cambridge Certified',
         type: 'checkbox',
-        checked: 'checked',
-        required: true,
+        required: false,
         icon: 'certificate'
     },
+   
 ]

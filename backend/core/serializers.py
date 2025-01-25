@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 class ApplicationModulesSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationModules
-        fields = '__all__'
+        fields = '__all__'    
 class UserSerializer(serializers.ModelSerializer):
     school = serializers.PrimaryKeyRelatedField(queryset=School.objects.all(), required=False, allow_null=True)
     password = serializers.CharField(write_only=True)  # Add password field, write_only so it doesn't get exposed
@@ -20,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SchoolSerializer(serializers.ModelSerializer):
-    modules = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), many=True)
+    modules = serializers.PrimaryKeyRelatedField(queryset=ApplicationModules.objects.all(), many=True)
 
     class Meta:
         model = School

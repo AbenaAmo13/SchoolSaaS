@@ -4,8 +4,19 @@ import  './style/registration.css';
 import { loginFormFields, createSchoolFormFields} from './utils/constant';
 import { useState } from 'react';
 import Form from '../Components/Form';
+import axios from "axios";
+
 const AuthLayout = ({ children }) => {
     const [loginFormState, setLginFormState] = useState(true) 
+    let baseUrl = process.env.REACT_APP_DJANGO_API_URL
+    let endpoint = loginFormState ?'/api/login' : '/api/school/'
+    let fullEndpoint = `${baseUrl}${endpoint}`
+
+    useEffect(()=>{
+        generateModuleOptions()
+
+    },[])
+
     const handleSuccess = (data) => {
         console.log('Form submitted successfully:', data);
         // Handle success (e.g., navigate, show success message)
@@ -20,7 +31,43 @@ const AuthLayout = ({ children }) => {
         setLginFormState(prev =>!prev);
     }
 
+    async function generateModuleOptions(){
+        const response = await axios.get(`${baseUrl}/api/register/`);
+        const data = response.data
+        let modifiedModuleOptions = data.map(module => {
+            return { 
+             value: module.id, 
+             label: module.name
+            };
+          });
+        let moduleIndex = createSchoolFormFields.findIndex(field=> field.name=="module")
+        if(moduleIndex!==1){
+            createSchoolFormFields[moduleIndex].options = modifiedModuleOptions
+        }
+    }
 
+
+    // Chanhges the data to be in the form of the api
+  const manipulateData = (formData) => {
+    console.log(formData.cambridge_certified)
+    return {
+      school: {
+        name: formData.name,
+        email: formData.email,
+        contact_number: formData.contact_number,
+        school_acronym: formData.school_acronym,
+        cambridge_certified: formData.cambridge_certified,
+        modules: [formData.module] //To replace with chosen selelct options as only one for now
+      },
+      user: {
+        username: formData.username,
+        password: formData.password,
+        role: 'admin',  // Example: hardcoded role
+        email: formData.email,
+        is_staff: true
+      }
+    };
+  };
 
   return (
     <div className='container'>
@@ -42,10 +89,11 @@ const AuthLayout = ({ children }) => {
                 </p>
             </div>
             <Form 
-                endpoint="https://example.com/api/register" 
+                endpoint={fullEndpoint}
                 fields={loginFormState ? loginFormFields: createSchoolFormFields} 
                 onSuccess={handleSuccess} 
                 onError={handleError}
+                dataManipulation={manipulateData}
             />
         </div>
         <main>

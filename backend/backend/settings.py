@@ -45,9 +45,13 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_extensions',
     'core',
-
+    'corsheaders'
 ]
 
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # Add your React app's URL here
+]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -56,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 AUTH_USER_MODEL = 'core.User'
