@@ -4,18 +4,19 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter ,  Routes, Route } from "react-router";
-import Signup from './Authentication/SignUp';
 import AuthLayout from './Authentication/AuthLayout';
+import  ApplicationNavigation from './Components/ApplicationNavigation'
+import Homepage from './HomePage/Homepage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
   <Routes>
       <Route path="/" element={<App />} />
-      <Route element={<AuthLayout />}>
-        <Route path="register" element={<Signup />} />
+      <Route element={<AuthLayout />} path='register'/>
+      <Route path="homepage" element={<ApplicationNavigation />}>
+        <Route index  element={<Homepage />} />
       </Route>
-
     </Routes>
 
   </BrowserRouter>

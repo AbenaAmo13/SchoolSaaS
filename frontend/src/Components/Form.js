@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
+import { redirect } from "react-router";
 import  '../Authentication/style/registration.css';
 
-const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeCredentials }) => {
+const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeCredentials}) => {
  
   const [formData, setFormData] = useState(generateInitialState || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,6 +53,8 @@ const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeC
       onError(err); // Pass error to callback for handling
     } finally {
       setIsSubmitting(false);
+      
+
     }
   };
 

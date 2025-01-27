@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import  './style/registration.css';
 import { loginFormFields, createSchoolFormFields} from './utils/constant';
 import { useState } from 'react';
@@ -8,9 +8,11 @@ import axios from "axios";
 
 const AuthLayout = ({ children }) => {
     const [loginFormState, setLginFormState] = useState(true) 
+    const navigate = useNavigate(); // Instantiate useNavigate
     let baseUrl = process.env.REACT_APP_DJANGO_API_URL
     let endpoint = loginFormState ?'/api/login/' : '/api/school/'
     let fullEndpoint = `${baseUrl}${endpoint}`
+
 
     useEffect(()=>{
         generateModuleOptions()
@@ -19,6 +21,7 @@ const AuthLayout = ({ children }) => {
 
     const handleSuccess = (data) => {
         console.log('Form submitted successfully:', data);
+        navigate('/homepage'); // This will redirect to '/dashboard' after successful login
         // Handle success (e.g., navigate, show success message)
       };
     const handleError = (error) => {
