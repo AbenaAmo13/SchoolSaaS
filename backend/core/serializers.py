@@ -47,7 +47,12 @@ class CreateSchoolAndAdminSerializer(serializers.Serializer):
         # Create the user, associating it with the created school
         user_data['school'] = school
         user = User.objects.create_user(**user_data)
-
+        permissions = Permission.objects.get(name__icontains='school') 
+        allowed_user_permissions = ['change_school', 'view_school']
+        #Admin users
+        for perm in post_permissions:
+            if perm.code_name in allowed_user_permissions:
+                user.user_permissions.add(perm)
         return {'school': school, 'user': user}
 
 class RegisterSerializer(serializers.ModelSerializer):

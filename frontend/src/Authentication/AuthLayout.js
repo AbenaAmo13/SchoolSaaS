@@ -9,7 +9,7 @@ import axios from "axios";
 const AuthLayout = ({ children }) => {
     const [loginFormState, setLginFormState] = useState(true) 
     let baseUrl = process.env.REACT_APP_DJANGO_API_URL
-    let endpoint = loginFormState ?'/api/login' : '/api/school/'
+    let endpoint = loginFormState ?'/api/login/' : '/api/school/'
     let fullEndpoint = `${baseUrl}${endpoint}`
 
     useEffect(()=>{
@@ -48,7 +48,7 @@ const AuthLayout = ({ children }) => {
 
 
     // Chanhges the data to be in the form of the api
-  const manipulateData = (formData) => {
+  const createSchoolDataManipulation = (formData) => {
     console.log(formData.cambridge_certified)
     return {
       school: {
@@ -64,10 +64,14 @@ const AuthLayout = ({ children }) => {
         password: formData.password,
         role: 'admin',  // Example: hardcoded role
         email: formData.email,
-        is_staff: true
+        is_staff: true //
       }
     };
   };
+
+  const noManipulation=(formData)=>{
+    return formData
+  }
 
   return (
     <div className='container'>
@@ -93,7 +97,8 @@ const AuthLayout = ({ children }) => {
                 fields={loginFormState ? loginFormFields: createSchoolFormFields} 
                 onSuccess={handleSuccess} 
                 onError={handleError}
-                dataManipulation={manipulateData}
+                dataManipulation={loginFormState ? noManipulation : createSchoolDataManipulation}
+                includeCredentials={false}
             />
         </div>
         <main>

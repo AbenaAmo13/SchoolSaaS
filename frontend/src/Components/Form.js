@@ -3,8 +3,11 @@ import axios from 'axios';
 
 import  '../Authentication/style/registration.css';
 
-const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation }) => {
+const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeCredentials }) => {
+ 
   const [formData, setFormData] = useState(generateInitialState || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   function generateInitialState() {
     return fields.reduce((acc, field) => {
@@ -13,15 +16,13 @@ const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation }) => {
     }, {});
   }
 
-  console.log(formData.cambridge_certified)
   useEffect(()=>{
     setFormData(generateInitialState())
 
   },[fields])
 
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -40,12 +41,15 @@ const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation }) => {
 
     try {
       const dataToSubmit = dataManipulation ? dataManipulation(formData) : formData;
+      if(includeCredentials){
+        axios.defaults.withCredentials = true; 
+    }
       const response = await axios.post(endpoint, dataToSubmit);
       // If the request is successful, trigger the onSuccess callback
       onSuccess(response.data);
     } catch (err) {
       // If there is an error, set the error state and trigger the onError callback
-      setError(err.response ? err.response.data.message : err.message);
+      setError(err.response ? err.response.data.non_field_errors : err.message);
       onError(err); // Pass error to callback for handling
     } finally {
       setIsSubmitting(false);
@@ -67,6 +71,8 @@ const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation }) => {
       <input type={type || 'text'} name={name} value={formData[name]} onChange={handleChange} required={required} placeholder={field.placeholder || ''} />
     );
   };
+
+  
 
   return (
     <form onSubmit={handleSubmit} className="form">

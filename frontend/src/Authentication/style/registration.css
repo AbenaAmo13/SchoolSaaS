@@ -15,6 +15,10 @@
     height: 100vh;
   }
 
+  .error{
+    color: red;
+    font-weight: bolder;
+  }
 
 label i {
     margin-right: 8px;  /* Add some space between icon and label */

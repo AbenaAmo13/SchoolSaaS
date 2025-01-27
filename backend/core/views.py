@@ -41,10 +41,17 @@ class CreateSchoolAndAdminView(APIView):
         if serializer.is_valid():
             # If data is valid, create both the school and user
             result = serializer.save()
+            user = result['user']
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+            access_token = refresh.access_token
+            # Set HttpOnly, Secure, SameSite cookies
+            response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
+            response.set_cookie('refresh_token', str(refresh), httponly=True, secure=True, samesite='Strict')
             # Return both school and user in the response
             return Response({
                 "school": SchoolSerializer(result['school']).data,
-                "user": UserSerializer(result['user']).data
+                "user": UserSerializer(user).data
             }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -57,9 +64,10 @@ class LoginView(APIView):
             user = serializer.validated_data
             user_information = UserSerializer(user).data
             refresh = RefreshToken.for_user(user)
-            return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                'user_information': user_information
-            })
+            response = Response({'user_information': user_information}, status=status.HTTP_200_OK)
+            # Set HttpOnly, Secure, SameSite cookies
+            response.set_cookie('access_token', str(refresh.access_token), httponly=True, secure=True, samesite='Strict')
+            response.set_cookie('refresh_token', str(refresh), httponly=True, secure=True, samesite='Strict')
+            return response
+     
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
