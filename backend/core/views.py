@@ -64,10 +64,13 @@ class LoginView(APIView):
             user = serializer.validated_data
             user_information = UserSerializer(user).data
             refresh = RefreshToken.for_user(user)
-            response = Response({'user_information': user_information}, status=status.HTTP_200_OK)
+            user_school = School.objects.get()
+            refresh_token =  str(refresh)
+            access_token = str(refresh.access_token)
+            response = Response({'user': user_information, 'access_token': access_token, 'refresh_token': refresh_token}, status=status.HTTP_200_OK)
             # Set HttpOnly, Secure, SameSite cookies
-            response.set_cookie('access_token', str(refresh.access_token), httponly=True, secure=True, samesite='Strict')
-            response.set_cookie('refresh_token', str(refresh), httponly=True, secure=True, samesite='Strict')
+            response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
+            response.set_cookie('refresh_token',refresh_token, httponly=True, secure=True, samesite='Strict')
             return response
      
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

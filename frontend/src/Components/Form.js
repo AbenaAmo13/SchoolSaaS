@@ -3,7 +3,7 @@ import axios from 'axios';
 import { redirect } from "react-router";
 import  '../Authentication/style/registration.css';
 
-const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeCredentials}) => {
+const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeCredentials, customHandleSubmit}) => {
  
   const [formData, setFormData] = useState(generateInitialState || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,7 +34,7 @@ const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeC
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const defaultHandleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null); // Reset previous error
@@ -53,8 +53,6 @@ const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeC
       onError(err); // Pass error to callback for handling
     } finally {
       setIsSubmitting(false);
-      
-
     }
   };
 
@@ -74,7 +72,10 @@ const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeC
     );
   };
 
-  
+
+  const handleSubmit = customHandleSubmit
+  ? (e) => customHandleSubmit(e, formData, setIsSubmitting, setError)
+  : defaultHandleSubmit;  
 
   return (
     <form onSubmit={handleSubmit} className="form">

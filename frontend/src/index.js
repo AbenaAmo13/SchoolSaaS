@@ -7,17 +7,25 @@ import { BrowserRouter ,  Routes, Route } from "react-router";
 import AuthLayout from './Authentication/AuthLayout';
 import  ApplicationNavigation from './Components/ApplicationNavigation'
 import Homepage from './HomePage/Homepage';
+import PrivateRoute from './Authentication/ProtectedRoutes';
+import AuthProvider from './Providers/AuthenticationProvider';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+
   <BrowserRouter>
-  <Routes>
-      <Route path="/" element={<App />} />
-      <Route element={<AuthLayout />} path='register'/>
-      <Route path="homepage" element={<ApplicationNavigation />}>
-        <Route index  element={<Homepage />} />
-      </Route>
-    </Routes>
+    <AuthProvider>
+    <Routes>
+        <Route path="/" element={<App />} />
+        <Route element={<AuthLayout />} path='login'/>
+        <Route element={<PrivateRoute />}>
+          <Route path="homepage" element={<ApplicationNavigation />}>
+            <Route index  element={<Homepage />} />
+          </Route>
+        </Route>
+      
+      </Routes>
+    </AuthProvider>
 
   </BrowserRouter>
 

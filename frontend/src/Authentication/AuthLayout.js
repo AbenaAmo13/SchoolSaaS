@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import  './style/registration.css';
 import { loginFormFields, createSchoolFormFields} from './utils/constant';
 import { useState } from 'react';
 import Form from '../Components/Form';
 import axios from "axios";
+import { useAuth } from '../Providers/AuthenticationProvider';
 
 const AuthLayout = ({ children }) => {
     const [loginFormState, setLginFormState] = useState(true) 
@@ -12,6 +13,8 @@ const AuthLayout = ({ children }) => {
     let baseUrl = process.env.REACT_APP_DJANGO_API_URL
     let endpoint = loginFormState ?'/api/login/' : '/api/school/'
     let fullEndpoint = `${baseUrl}${endpoint}`
+    const auth = useAuth();
+
 
 
     useEffect(()=>{
@@ -76,6 +79,25 @@ const AuthLayout = ({ children }) => {
     return formData
   }
 
+  async function customHandleSubmit(e, formData, setIsSubmitting, setError){
+    e.preventDefault();
+    setIsSubmitting(true);
+    //setError(null); // Reset previous error
+    try {
+     console.log(formData)
+      let dataToSubmit =  loginFormState ? noManipulation : createSchoolDataManipulation(formData)
+      console.log(fullEndpoint)
+      console.log(dataToSubmit)
+      auth.authenticationAction(dataToSubmit, fullEndpoint)
+      handleSuccess(auth.user)
+    } catch (err) {
+      setError(err.response ? err.response.data.non_field_errors : err.message);
+      handleError(err)
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <div className='container'>
         <div className="bg-image"></div>
@@ -96,12 +118,8 @@ const AuthLayout = ({ children }) => {
                 </p>
             </div>
             <Form 
-                endpoint={fullEndpoint}
                 fields={loginFormState ? loginFormFields: createSchoolFormFields} 
-                onSuccess={handleSuccess} 
-                onError={handleError}
-                dataManipulation={loginFormState ? noManipulation : createSchoolDataManipulation}
-                includeCredentials={false}
+                customHandleSubmit={customHandleSubmit}
             />
         </div>
         <main>
