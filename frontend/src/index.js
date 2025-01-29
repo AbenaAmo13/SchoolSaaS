@@ -16,7 +16,6 @@ root.render(
   <BrowserRouter>
     <AuthProvider>
     <Routes>
-        <Route path="/" element={<App />} />
         <Route element={<AuthLayout />} path='login'/>
         <Route element={<PrivateRoute />}>
           <Route path="homepage" element={<ApplicationNavigation />}>

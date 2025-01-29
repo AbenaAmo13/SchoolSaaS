@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import School, User, ApplicationModules
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
+
 
 class ApplicationModulesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,12 +48,10 @@ class CreateSchoolAndAdminSerializer(serializers.Serializer):
         # Create the user, associating it with the created school
         user_data['school'] = school
         user = User.objects.create_user(**user_data)
-        permissions = Permission.objects.get(name__icontains='school') 
         allowed_user_permissions = ['change_school', 'view_school']
-        #Admin users
-        for perm in post_permissions:
-            if perm.code_name in allowed_user_permissions:
-                user.user_permissions.add(perm)
+        permissions = Permission.objects.filter(codename__in=allowed_user_permissions) 
+        print(permissions)
+        user.user_permissions.set(permissions)
         return {'school': school, 'user': user}
 
 class RegisterSerializer(serializers.ModelSerializer):

@@ -9,11 +9,11 @@ import { useAuth } from '../Providers/AuthenticationProvider';
 
 const AuthLayout = ({ children }) => {
     const [loginFormState, setLginFormState] = useState(true) 
+    const [error, setError]= useState(null)
     const navigate = useNavigate(); // Instantiate useNavigate
     let baseUrl = process.env.REACT_APP_DJANGO_API_URL
     let endpoint = loginFormState ?'/api/login/' : '/api/school/'
-    let fullEndpoint = `${baseUrl}${endpoint}`
-    const auth = useAuth();
+    const {authenticationAction} = useAuth();
 
 
 
@@ -21,17 +21,6 @@ const AuthLayout = ({ children }) => {
         generateModuleOptions()
 
     },[])
-
-    const handleSuccess = (data) => {
-        console.log('Form submitted successfully:', data);
-        navigate('/homepage'); // This will redirect to '/dashboard' after successful login
-        // Handle success (e.g., navigate, show success message)
-      };
-    const handleError = (error) => {
-        console.error('Form submission error:', error);
-        // Handle error (e.g., show an error message)
-      };
-
 
     function toggleFormState(){
         setLginFormState(prev =>!prev);
@@ -55,7 +44,6 @@ const AuthLayout = ({ children }) => {
 
     // Chanhges the data to be in the form of the api
   const createSchoolDataManipulation = (formData) => {
-    console.log(formData.cambridge_certified)
     return {
       school: {
         name: formData.name,
@@ -75,24 +63,18 @@ const AuthLayout = ({ children }) => {
     };
   };
 
-  const noManipulation=(formData)=>{
-    return formData
-  }
-
+  
   async function customHandleSubmit(e, formData, setIsSubmitting, setError){
     e.preventDefault();
     setIsSubmitting(true);
-    //setError(null); // Reset previous error
+    setError(null); 
     try {
-     console.log(formData)
-      let dataToSubmit =  loginFormState ? noManipulation : createSchoolDataManipulation(formData)
-      console.log(fullEndpoint)
-      console.log(dataToSubmit)
-      auth.authenticationAction(dataToSubmit, fullEndpoint)
-      handleSuccess(auth.user)
+      let dataToSubmit =  loginFormState ? formData : createSchoolDataManipulation(formData)
+      await authenticationAction(dataToSubmit, endpoint)
     } catch (err) {
-      setError(err.response ? err.response.data.non_field_errors : err.message);
-      handleError(err)
+      let errors = err.response ? err.response.data.non_field_errors : err.message
+      let message = errors.join();
+      setError(message)
     } finally {
       setIsSubmitting(false);
     }

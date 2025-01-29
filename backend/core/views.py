@@ -44,16 +44,19 @@ class CreateSchoolAndAdminView(APIView):
             user = result['user']
             # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
-            access_token = refresh.access_token
+            access_token =str(refresh.access_token)
+            refresh_token= str(refresh)
+            response = Response({
+                "school": SchoolSerializer(result['school']).data,
+                "user": UserSerializer(user).data,
+                'access_token': access_token, 
+                'refresh_token': refresh_token
+            }, status=status.HTTP_201_CREATED)
             # Set HttpOnly, Secure, SameSite cookies
             response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
-            response.set_cookie('refresh_token', str(refresh), httponly=True, secure=True, samesite='Strict')
+            response.set_cookie('refresh_token', httponly=True, secure=True, samesite='Strict')
             # Return both school and user in the response
-            return Response({
-                "school": SchoolSerializer(result['school']).data,
-                "user": UserSerializer(user).data
-            }, status=status.HTTP_201_CREATED)
-
+            return  response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
@@ -64,7 +67,6 @@ class LoginView(APIView):
             user = serializer.validated_data
             user_information = UserSerializer(user).data
             refresh = RefreshToken.for_user(user)
-            user_school = School.objects.get()
             refresh_token =  str(refresh)
             access_token = str(refresh.access_token)
             response = Response({'user': user_information, 'access_token': access_token, 'refresh_token': refresh_token}, status=status.HTTP_200_OK)
