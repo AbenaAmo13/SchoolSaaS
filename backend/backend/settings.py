@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-
+import os
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,6 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-6uu4@)6!gvtqaedq&*c%c2ouwpm*jxdxv!6%)w2(j(xs)_i-(g'
+
+IS_PRODUCTION = os.getenv("DJANGO_PRODUCTION", False)  # Set this to "True" in production
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -49,10 +51,8 @@ INSTALLED_APPS = [
 ]
 
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  # Add your React app's URL here
-]
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # MUST be at the top!
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,7 +60,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 AUTH_USER_MODEL = 'core.User'
@@ -152,5 +151,25 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # You can also adjust refresh token lifetime
     'ROTATE_REFRESH_TOKENS': True,  # Optional: Rotate refresh tokens on refresh
     'BLACKLIST_AFTER_ROTATION': True,  # Optional: Blacklist refresh token after rotation
+    'AUTH_COOKIE': 'access_token',
+    'AUTH_COOKIE_HTTP_ONLY': True,
+    'AUTH_COOKIE_SECURE': IS_PRODUCTION,  # ✅ Only secure in production
+    'AUTH_COOKIE_SAMESITE': 'Lax' if not IS_PRODUCTION else 'None',
 }
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # Add your React app's URL here
+]
+CORS_ALLOW_CREDENTIALS=True
+
+# ✅ CSRF Settings
+CSRF_COOKIE_SECURE = True  # Required for HTTPS
+CSRF_COOKIE_HTTPONLY = True  # Hide cookie from JavaScript
+CSRF_COOKIE_SAMESITE = "None"  # Required for cross-domain
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]  # Frontend URL
+
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = "None"
+
  
+

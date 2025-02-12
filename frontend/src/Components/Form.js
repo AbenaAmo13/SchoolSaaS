@@ -9,8 +9,6 @@ const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeC
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  console.log(error)
-  console.log(isSubmitting)
   function generateInitialState() {
     return fields.reduce((acc, field) => {
       acc[field.name] = field.type === 'checkbox' ? false : (field.type === 'select' ? field.options[0].value : '');

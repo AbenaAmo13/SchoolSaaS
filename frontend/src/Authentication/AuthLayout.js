@@ -6,6 +6,8 @@ import { useState } from 'react';
 import Form from '../Components/Form';
 import axios from "axios";
 import { useAuth } from '../Providers/AuthenticationProvider';
+import createAxiosInstance from '../utils/axiosInstance'
+
 
 const AuthLayout = ({ children }) => {
     const [loginFormState, setLginFormState] = useState(true) 
@@ -27,18 +29,20 @@ const AuthLayout = ({ children }) => {
     }
 
     async function generateModuleOptions(){
-        const response = await axios.get(`${baseUrl}/api/register/`);
-        const data = response.data
-        let modifiedModuleOptions = data.map(module => {
-            return { 
-             value: module.id, 
-             label: module.name
-            };
-          });
-        let moduleIndex = createSchoolFormFields.findIndex(field=> field.name=="module")
-        if(moduleIndex!==1){
-            createSchoolFormFields[moduleIndex].options = modifiedModuleOptions
-        }
+      const getModules =  createAxiosInstance(baseUrl); // Authentication base URL
+      let fullEndpoint = `${baseUrl}/api/register/`
+      const response = await getModules.get(fullEndpoint);
+      const data = response.data
+      let modifiedModuleOptions = data.map(module => {
+          return { 
+            value: module.id, 
+            label: module.name
+          };
+        });
+      let moduleIndex = createSchoolFormFields.findIndex(field=> field.name=="module")
+      if(moduleIndex!==1){
+          createSchoolFormFields[moduleIndex].options = modifiedModuleOptions
+      }
     }
 
 

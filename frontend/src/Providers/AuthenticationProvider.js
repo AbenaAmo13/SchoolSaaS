@@ -1,7 +1,7 @@
 import { useContext, createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-
+import createAxiosInstance from '../utils/axiosInstance'
 
 const AuthContext = createContext();
 
@@ -9,34 +9,29 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [refreshToken, setRefreshToken] = useState(null);
   const [authenticationError, setAuthenticationError] = useState(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [school, setSchool] = useState(null)
   const [accessToken, setAccessToken] = useState(null)
   const navigate = useNavigate();
   let baseUrl = process.env.REACT_APP_DJANGO_API_URL
+  const authAxios = createAxiosInstance(baseUrl); // Authentication base URL
 
+  
 
-  useEffect(() => {
-    if (accessToken && refreshToken) {
-      // If access and refresh tokens are present, set Axios authorization header
-      axios.defaults.headers['Authorization'] = `Bearer ${accessToken}`;
-    }
-  }, [accessToken]);
-
-function actionPostLoginOrSubmit(data, navigateUrl){
+function actionPostLoginOrSubmit(data){
     setUser(data.user);
     if(data.school){
         setSchool(data.school)
     }
-    setRefreshToken(data['refresh_token']);
     setAccessToken(data['access_token'])
+    setRefreshToken(data['refresh_token'])
+    setIsAuthenticated(true)
     navigate('/homepage');
   }
 
   async function postRequest(dataToSubmit, endpoint){
     let fullEndpoint = `${baseUrl}${endpoint}`
-    console.log(dataToSubmit)
-      console.log(fullEndpoint)
-    const response = await axios.post(fullEndpoint, dataToSubmit);
+    const response = await authAxios.post(fullEndpoint, dataToSubmit);
     let data = response.data
     return data
   }
@@ -45,32 +40,28 @@ function actionPostLoginOrSubmit(data, navigateUrl){
     //endpoint can be login, /api/login endpoint can be sign up /api/registration
     setAuthenticationError(null)
     try {
-        
         let data = await  postRequest( dataToSubmit,endpoint)
         if (data) {
-            actionPostLoginOrSubmit(data, '/homepage')
+            actionPostLoginOrSubmit(data)
         }
     } catch (err) {
       let errors = err.response ? err.response.data.non_field_errors : err.message
       let message = errors.join();
       setAuthenticationError(message)
       throw err;  // Rethrow error to handle it in the parent (if necessary)
-
-      
     }
   };
-
  
+
+  
+
     // Function to refresh the access token
     const refreshAccessToken = async () => {
         try {
-          const response = await axios.post(`${baseUrl}/api/token/refresh/`, {
-            refresh: refreshToken
-          });
+          const response = await authAxios.post(`${baseUrl}/api/token/refresh/`)
           const newAccessToken = response.data.access;
           setAccessToken(newAccessToken);
-          // Update the Axios default Authorization header
-          axios.defaults.headers['Authorization'] = `Bearer ${newAccessToken}`;
+          authAxios.defaults.headers['Authorization'] = `Bearer ${newAccessToken}`; // Update the Axios default Authorization header
           return newAccessToken;
         } catch (err) {
           console.error("Token refresh failed:", err);
@@ -100,11 +91,14 @@ function actionPostLoginOrSubmit(data, navigateUrl){
     setUser(null);
     setAccessToken("");
     setRefreshToken("")
+    document.cookie = "access_token=; Max-Age=0; path=/";
+    document.cookie = "refresh_token=; Max-Age=0; path=/";
+    setIsAuthenticated(false)
     navigate("/login");
   };
 
   return (
-    <AuthContext.Provider value={{ accessToken, refreshToken, user, school , authenticationError, authenticationAction,logout, refreshAccessToken, handleRequest }}>
+    <AuthContext.Provider value={{ accessToken, refreshToken, user, school , authenticationError, authenticationAction,logout, refreshAccessToken, handleRequest, isAuthenticated}}>
       {children}
     </AuthContext.Provider>
   );
