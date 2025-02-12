@@ -1,8 +1,13 @@
 from rest_framework import serializers
-from .models import School, User
+from .models import School, User, ApplicationModules
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 
+
+class ApplicationModulesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationModules
+        fields = '__all__'    
 class UserSerializer(serializers.ModelSerializer):
     school = serializers.PrimaryKeyRelatedField(queryset=School.objects.all(), required=False, allow_null=True)
     password = serializers.CharField(write_only=True)  # Add password field, write_only so it doesn't get exposed
@@ -16,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SchoolSerializer(serializers.ModelSerializer):
-    modules = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), many=True)
+    modules = serializers.PrimaryKeyRelatedField(queryset=ApplicationModules.objects.all(), many=True)
 
     class Meta:
         model = School
@@ -43,7 +48,10 @@ class CreateSchoolAndAdminSerializer(serializers.Serializer):
         # Create the user, associating it with the created school
         user_data['school'] = school
         user = User.objects.create_user(**user_data)
-
+        allowed_user_permissions = ['change_school', 'view_school']
+        permissions = Permission.objects.filter(codename__in=allowed_user_permissions) 
+        print(permissions)
+        user.user_permissions.set(permissions)
         return {'school': school, 'user': user}
 
 class RegisterSerializer(serializers.ModelSerializer):

@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User,School
+from .models import User,School, ApplicationModules
+
+
 
 class SchoolAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
@@ -54,4 +56,6 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.register(School, SchoolAdmin)
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(ApplicationModules)
+
 

@@ -4,16 +4,27 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter ,  Routes, Route } from "react-router";
-import Signup from './Authentication/SignUp';
+import AuthLayout from './Authentication/AuthLayout';
+import  ApplicationNavigation from './Components/ApplicationNavigation'
+import Homepage from './HomePage/Homepage';
+import PrivateRoute from './Authentication/ProtectedRoutes';
+import AuthProvider from './Providers/AuthenticationProvider';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <BrowserRouter>
-  <Routes>
-      <Route path="/" element={<App />} />
-      <Route path="/signUp" element={<Signup />} />
 
-    </Routes>
+  <BrowserRouter>
+    <AuthProvider>
+    <Routes>
+        <Route element={<AuthLayout />} path='login'/>
+        <Route element={<PrivateRoute />}>
+          <Route path="homepage" element={<ApplicationNavigation />}>
+            <Route index  element={<Homepage />} />
+          </Route>
+        </Route>
+      
+      </Routes>
+    </AuthProvider>
 
   </BrowserRouter>
 

@@ -3,11 +3,16 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.models import AbstractUser
 import uuid
 
+class ApplicationModules(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name 
 
 # Create your models here.
 class School(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    modules = models.ManyToManyField(Group,related_name='school')
+    modules = models.ManyToManyField(ApplicationModules,related_name='school')
     name = models.CharField(max_length=100)
     contact_number = models.CharField(max_length=100)
     email = models.CharField(max_length=100)
@@ -18,6 +23,8 @@ class School(models.Model):
 
     def __str__(self):
         return self.name
+
+
 
 class User(AbstractUser):
      # Adding UUID-based unique ID

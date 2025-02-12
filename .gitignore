@@ -2,3 +2,4 @@ node_modules/
 .env.dev
 backend/db.sqlite3
 backend/core/__pycache__
+backend/backend/__pycache__
