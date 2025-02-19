@@ -1,0 +1,90 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/certs:/etc/nginx/certs
+    ports:
+      - "443:443"
+      - "80:80"
+    depends_on:
+      - frontend
+      - django_authentication_backend
+  authentication_db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${AUTHENTICATION_DB_BACKEND}
+      POSTGRES_USER: ${AUTHENTICATON_DB_USERNAME}
+      POSTGRES_PASSWORD: ${AUTHENTICATION_DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  django_authentication_backend:
+    build: 
+      context: ./backend
+      dockerfile: dev.Dockerfile
+    container_name: django_authentication_backend
+    depends_on:
+      - authentication_db
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DEBUG: ${DEBUG}
+      DJANGO_LOGLEVEL: ${DJANGO_LOGLEVEL}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DATABASE_ENGINE: ${DATABASE_ENGINE}
+      DATABASE_NAME: ${AUTHENTICATION_DB_BACKEND}
+      DATABASE_USERNAME: ${AUTHENTICATON_DB_USERNAME}
+      DATABASE_PASSWORD: ${AUTHENTICATION_DB_PASSWORD}
+      DATABASE_HOST: ${AUTHENTICATON_DB_HOST}
+      DATABASE_PORT: ${DB_PORT}
+    env_file:
+      - .env
+
+  school_management_db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${SCHOOL_MANAGEMENT_DB_BACKEND}
+      POSTGRES_USER: ${SCHOOL_MANAGEMENT_DB_USERNAME}
+      POSTGRES_PASSWORD: ${SCHOOL_MANAGEMENT_DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+  school_management_service:
+    build: 
+        context: ./school_management_service
+        dockerfile: dev.Dockerfile
+    container_name: school_management_service
+    depends_on:
+        - django_authentication_backend
+        - school_management_db
+    environment:
+      DJANGO_SECRET_KEY: ${SM_DJANGO_SECRET_KEY}
+      DEBUG: ${DEBUG}
+      DJANGO_LOGLEVEL: ${DJANGO_LOGLEVEL}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DATABASE_ENGINE: ${DATABASE_ENGINE}
+      DATABASE_NAME: ${SCHOOL_MANAGEMENT_DB_BACKEND}
+      DATABASE_USERNAME: ${SCHOOL_MANAGEMENT_DB_USERNAME}
+      DATABASE_PASSWORD: ${SCHOOL_MANAGEMENT_DB_PASSWORD}
+      DATABASE_HOST: ${SCHOOL_MANAGEMENT_DB_HOST}
+      DATABASE_PORT: ${DB_PORT}
+    env_file:
+      - .env
+  frontend:
+    build:
+      context: ./frontend
+    container_name: react_frontend
+    environment:
+      - HTTPS=true
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
+networks:
+  default:
+    name: microservices_network
