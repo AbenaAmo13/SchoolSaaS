@@ -37,7 +37,5 @@
   },
   "devDependencies": {
     "web-vitals": "^4.2.4"
-  },
-  "proxy": "https://localhost"
-
+  }
 }

@@ -6,27 +6,33 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/certs:/etc/nginx/certs
     ports:
-      - "443:443"
-      - "80:80"
+      - 443:443
+      - 80:80
+    networks:
+      - schoolsaas
     depends_on:
       - frontend
       - django_authentication_backend
+      - school_management_service
   authentication_db:
     image: postgres:17
     environment:
       POSTGRES_DB: ${AUTHENTICATION_DB_BACKEND}
-      POSTGRES_USER: ${AUTHENTICATON_DB_USERNAME}
+      POSTGRES_USER: ${AUTHENTICATION_DB_USERNAME}
       POSTGRES_PASSWORD: ${AUTHENTICATION_DB_PASSWORD}
+    networks:
+      - schoolsaas
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - auth_data:/var/lib/postgresql/data
     env_file:
       - .env
-
   django_authentication_backend:
     build: 
       context: ./backend
       dockerfile: dev.Dockerfile
     container_name: django_authentication_backend
+    networks:
+      - schoolsaas
     depends_on:
       - authentication_db
     environment:
@@ -36,21 +42,22 @@ services:
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
       DATABASE_ENGINE: ${DATABASE_ENGINE}
       DATABASE_NAME: ${AUTHENTICATION_DB_BACKEND}
-      DATABASE_USERNAME: ${AUTHENTICATON_DB_USERNAME}
+      DATABASE_USERNAME: ${AUTHENTICATION_DB_USERNAME}
       DATABASE_PASSWORD: ${AUTHENTICATION_DB_PASSWORD}
-      DATABASE_HOST: ${AUTHENTICATON_DB_HOST}
+      DATABASE_HOST: ${AUTHENTICATION_DB_HOST}
       DATABASE_PORT: ${DB_PORT}
     env_file:
       - .env
-
   school_management_db:
     image: postgres:17
     environment:
       POSTGRES_DB: ${SCHOOL_MANAGEMENT_DB_BACKEND}
       POSTGRES_USER: ${SCHOOL_MANAGEMENT_DB_USERNAME}
       POSTGRES_PASSWORD: ${SCHOOL_MANAGEMENT_DB_PASSWORD}
+    networks:
+      - schoolsaas
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - sm_data:/var/lib/postgresql/data
     env_file:
       - .env
   school_management_service:
@@ -61,6 +68,8 @@ services:
     depends_on:
         - django_authentication_backend
         - school_management_db
+    networks:
+      - schoolsaas
     environment:
       DJANGO_SECRET_KEY: ${SM_DJANGO_SECRET_KEY}
       DEBUG: ${DEBUG}
@@ -75,16 +84,17 @@ services:
     env_file:
       - .env
   frontend:
-    build:
-      context: ./frontend
-    container_name: react_frontend
-    environment:
-      - HTTPS=true
-    ports:
-      - "3000:3000"
-
+      build: 
+        context: ./frontend
+        dockerfile: dev.Dockerfile
+      networks:
+        - schoolsaas
 volumes:
-  postgres_data:
+  auth_data:
+    driver: local
+  sm_data:
+    driver: local
+    
 networks:
-  default:
-    name: microservices_network
+  schoolsaas:
+    driver: bridge
