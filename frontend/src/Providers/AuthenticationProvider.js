@@ -13,7 +13,7 @@ const AuthProvider = ({ children }) => {
   const [school, setSchool] = useState(null)
   const [accessToken, setAccessToken] = useState(null)
   const navigate = useNavigate();
-  let baseUrl = process.env.REACT_APP_DJANGO_API_URL
+  let baseUrl = process.env.REACT_APP_AUTHENTICATION_DJANGO_API_URL
   const authAxios = createAxiosInstance(baseUrl); // Authentication base URL
 
   
