@@ -178,6 +178,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_CREDENTIALS=True
 
+
 # ✅ CSRF Settings
 CSRF_COOKIE_SECURE = True  # Required for HTTPS
 CSRF_COOKIE_HTTPONLY = True  # Hide cookie from JavaScript
@@ -186,6 +187,15 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]  # Frontend URL
 
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "None"
+
+
+# Static files
+STATIC_URL = '/static/auth/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files (for user uploads)
+MEDIA_URL = '/media/auth/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
  
 
