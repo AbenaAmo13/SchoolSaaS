@@ -13,7 +13,12 @@ then
     python manage.py migrate
 
     python manage.py collectstatic --noinput
-    python manage.py runserver 0.0.0.0:8001
+    if [ "$DEBUG" = "True" ]
+    then
+        python manage.py runserver 0.0.0.0:8001 
+    else
+        gunicorn school_management_service.wsgi:application --bind 0.0.0.0:8001
+    fi
 
 fi
 

@@ -29,21 +29,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load .env file from the project root
 dotenv_path = os.path.join(BASE_DIR, ".env")
 load_dotenv(dotenv_path)
-
-
 SECRET_KEY = os.getenv("SECRET_KEY")  
-
-
-IS_PRODUCTION = bool(os.getenv("DJANGO_PRODUCTION", False))  # Set this to "True" in production
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.getenv("DEBUG", default=0))
+DEBUG = os.getenv("DEBUG",True)
+IS_PRODUCTION = not DEBUG  # Set this to "True" in production
+
  
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
  
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

@@ -1,6 +1,5 @@
 #!/bin/sh
 
- echo "$DATABASE"
 if [ "$DATABASE" = "postgres" ]
 then
     echo "Waiting for postgres..."
@@ -14,7 +13,26 @@ then
     python manage.py migrate
 
     python manage.py collectstatic --noinput
-    python manage.py runserver 0.0.0.0:8000
+    #python manage.py runserver 0.0.0.0:8000
+     echo "$DEBUG is here"
+
+    if [ "$DEBUG" = "True" ]
+    then
+      python manage.py runserver 0.0.0.0:8000
+    else
+      gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+      
+    fi
+
+
+    if [ "$DJANGO_SUPERUSER_USERNAME" ]
+    then
+        python manage.py createsuperuser \
+            --noinput \
+            --username $DJANGO_SUPERUSER_USERNAME \
+            --email $DJANGO_SUPERUSER_EMAIL
+    fi
+
 fi
 
 

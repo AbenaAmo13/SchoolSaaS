@@ -1,4 +1,6 @@
 services:
+
+# Nginx Service
   nginx:
     image: nginx:alpine
     container_name: nginx_proxy
@@ -18,6 +20,8 @@ services:
       - frontend
       - django_authentication_backend
       - school_management_service
+
+# Authentication Database      
   authentication_db:
     image: postgres:17
     environment:
@@ -30,6 +34,8 @@ services:
       - auth_data:/var/lib/postgresql/data
     env_file:
       - .env
+
+# Authentication Service    
   django_authentication_backend:
     build: 
       context: ./backend
@@ -55,6 +61,8 @@ services:
     volumes:
       - auth_static_volume:/usr/src/auth-app/staticfiles
       - auth_media_volume:/usr/src/auth-app/media
+
+# School Management Database
   school_management_db:
     image: postgres:17
     environment:
@@ -67,6 +75,8 @@ services:
       - sm_data:/var/lib/postgresql/data
     env_file:
       - .env
+
+# School management service      
   school_management_service:
     build: 
         context: ./school_management_service
@@ -93,12 +103,16 @@ services:
     volumes:
       - sm_static_volume:/app/staticfiles
       - sm_media_volume:/app/media
+
+# Frontend service      
   frontend:
       build: 
         context: ./frontend
         dockerfile: dev.Dockerfile
       networks:
         - schoolsaas
+
+# Volume declarations        
 volumes:
   sm_media_volume:
     driver: local
@@ -113,6 +127,7 @@ volumes:
   sm_data:
     driver: local
     
+# Network setup    
 networks:
   schoolsaas:
     driver: bridge
