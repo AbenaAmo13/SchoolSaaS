@@ -29,21 +29,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load .env file from the project root
 dotenv_path = os.path.join(BASE_DIR, ".env")
 load_dotenv(dotenv_path)
-
-
 SECRET_KEY = os.getenv("SECRET_KEY")  
-
-
-IS_PRODUCTION = bool(os.getenv("DJANGO_PRODUCTION", False))  # Set this to "True" in production
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.getenv("DEBUG", default=0))
+DEBUG = os.getenv("DEBUG",True)
+IS_PRODUCTION = not DEBUG  # Set this to "True" in production
+
  
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
  
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -178,6 +173,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_CREDENTIALS=True
 
+
 # ✅ CSRF Settings
 CSRF_COOKIE_SECURE = True  # Required for HTTPS
 CSRF_COOKIE_HTTPONLY = True  # Hide cookie from JavaScript
@@ -186,6 +182,15 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]  # Frontend URL
 
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "None"
+
+
+# Static files
+STATIC_URL = '/static/auth/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files (for user uploads)
+MEDIA_URL = '/media/auth/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
  
 
