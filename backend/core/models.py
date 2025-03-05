@@ -38,6 +38,7 @@ class User(AbstractUser):
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True, related_name="users")
+    is_current_school_member= models.BooleanField(default=True)
     
     def __str__(self):
         return self.username
