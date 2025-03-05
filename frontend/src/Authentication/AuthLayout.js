@@ -31,6 +31,7 @@ const AuthLayout = ({ children }) => {
     async function generateModuleOptions(){
       const getModules =  createAxiosInstance(baseUrl); // Authentication base URL
       let fullEndpoint = `${baseUrl}/api/register/`
+      console.log(baseUrl)
       const response = await getModules.get(fullEndpoint);
       const data = response.data
       let modifiedModuleOptions = data.map(module => {
