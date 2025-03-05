@@ -14,8 +14,6 @@ then
 
     python manage.py collectstatic --noinput
     #python manage.py runserver 0.0.0.0:8000
-     echo "$DEBUG is here"
-
     if [ "$DEBUG" = "True" ]
     then
       python manage.py runserver 0.0.0.0:8000

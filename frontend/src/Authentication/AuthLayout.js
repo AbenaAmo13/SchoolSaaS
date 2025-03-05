@@ -14,7 +14,7 @@ const AuthLayout = ({ children }) => {
     const [error, setError]= useState(null)
     const navigate = useNavigate(); // Instantiate useNavigate
     let baseUrl = process.env.REACT_APP_AUTHENTICATION_DJANGO_API_URL
-    let endpoint = loginFormState ?'/api/login/' : '/api/school/'
+    let endpoint = loginFormState ?'/login/' : '/school/'
     const {authenticationAction} = useAuth();
 
 
