@@ -39,7 +39,7 @@ services:
   django_authentication_backend:
     build: 
       context: ./backend
-      dockerfile: dev.Dockerfile
+      dockerfile: Dockerfile
     container_name: django_authentication_backend
     networks:
       - schoolsaas
