@@ -27,7 +27,6 @@ RUN chmod +x ./scripts/dev.entrypoint.sh
 
 USER appuser
 
-EXPOSE 8000 
+EXPOSE 8001
 
-# Use the correct path for ENTRYPOINT
 ENTRYPOINT ["./scripts/dev.entrypoint.sh"]

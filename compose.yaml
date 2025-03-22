@@ -78,7 +78,7 @@ services:
   school_management_service:
     build: 
         context: ./school_management_service
-        dockerfile: dev.Dockerfile
+        dockerfile: Dockerfile
     container_name: school_management_service
     depends_on:
         - django_authentication_backend

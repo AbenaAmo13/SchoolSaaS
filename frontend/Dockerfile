@@ -9,18 +9,14 @@ ENV NPM_CONFIG_PRODUCTION=true
 # Set the working directory
 WORKDIR /app
 
-# Copy only essential files to improve caching
-COPY package*.json ./
-
-# Install dependencies using a clean npm cache to minimize image size
-RUN npm ci --omit=dev && \
-    npm cache clean --force
+# Use a separate, non-root user for security
+RUN adduser -D appuser && chown -R appuser /app
 
 # Copy application files (excluding files from .dockerignore)
 COPY . .
 
-# Use a separate, non-root user for security
-RUN adduser -D appuser && chown -R appuser /app
+# Install dependencies using a clean npm cache to minimize image size
+RUN npm ci --omit=dev && npm cache clean --force
 
 # Switch to the non-root user
 USER appuser
@@ -28,8 +24,5 @@ USER appuser
 # Expose only necessary ports
 EXPOSE 3000
 
-# Use a lightweight init system for better signal handling
-ENTRYPOINT ["dumb-init", "--"]
-
 # Start the application
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
