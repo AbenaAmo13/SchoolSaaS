@@ -23,7 +23,7 @@ services:
 
 # Authentication Database      
   authentication_db:
-    image: postgres:17
+    image: postgres:17.4
     environment:
       POSTGRES_DB: ${AUTHENTICATION_DB_BACKEND}
       POSTGRES_USER: ${AUTHENTICATION_DB_USERNAME}
@@ -37,9 +37,7 @@ services:
 
 # Authentication Service    
   django_authentication_backend:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
+    image: harbor.godlyobeng.com/schoolsaas/backend:0.1
     container_name: django_authentication_backend
     networks:
       - schoolsaas
@@ -64,7 +62,7 @@ services:
 
 # School Management Database
   school_management_db:
-    image: postgres:17
+    image: postgres:17.4
     environment:
       POSTGRES_DB: ${SCHOOL_MANAGEMENT_DB_BACKEND}
       POSTGRES_USER: ${SCHOOL_MANAGEMENT_DB_USERNAME}
@@ -106,9 +104,7 @@ services:
 
 # Frontend service      
   frontend:
-      build: 
-        context: ./frontend
-        dockerfile: dev.Dockerfile
+      image: harbor.godlyobeng.com/schoolsaas/frontend:0.1
       environment:
         REACT_APP_AUTHENTICATION_DJANGO_API_URL: ${REACT_APP_AUTHENTICATION_DJANGO_API_URL}
       env_file:

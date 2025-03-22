@@ -1,30 +1,27 @@
-# Use a minimal Python image
-FROM python:3.12-slim
+# Stage 1: Builder stage for dependencies
+FROM python:3.13.2-alpine AS builder
 
-# Set environment variables and working directory
-ENV HOME=/usr/src/auth-app
-WORKDIR $HOME
-
-# Prevent Python from writing .pyc files and buffer logs
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1 
 
-# Install dependencies in one step to keep image small
-RUN apt-get update && apt-get install -y netcat-openbsd \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Upgrade pip and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r requirements.txt
+# Stage 2: Final Production Image
+FROM python:3.13.2-alpine
 
-# Copy the rest of the project
-COPY . .
+# Create non-root user with `adduser` (Alpine style)
+RUN adduser -D -u 1000 appuser 
 
-# Ensure the entrypoint script is executable
-RUN chmod +x ./scripts/dev.entrypoint.sh
+WORKDIR /app
 
-# Expose the port
-EXPOSE 8000
+COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
-# Use the correct path for ENTRYPOINT
-ENTRYPOINT ["./scripts/dev.entrypoint.sh"]
+COPY --chown=appuser:appuser . .
+
+USER appuser
+EXPOSE 8000 
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "my_docker_django_app.wsgi:application"]
