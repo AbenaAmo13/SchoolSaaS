@@ -8,3 +8,4 @@ backend/core/utils/__pycache__/
 venv/
 .env
 nginx/certs/
+.DS_Store
