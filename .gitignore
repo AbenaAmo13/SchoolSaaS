@@ -9,3 +9,4 @@ venv/
 .env
 nginx/certs/
 .DS_Store
+package-lock.json
