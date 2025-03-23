@@ -5,12 +5,14 @@ image:
 stages:
   - init
   - build
+  - manifest
 
 variables:
   PROJECT: schoolsaas
   CI_IMAGE_TAG: alpha
   CI_REGISTRY: harbor.godlyobeng.com
   DOCKER_CONFIG: /kaniko/.docker/
+  ARCHITECTURES: "amd64,arm64"
 
 init_script:
   image: busybox:latest
@@ -31,10 +33,14 @@ build_backend:
   script:
     - mkdir -p /kaniko/.docker
     - cp .docker/config.json /kaniko/.docker/config.json
-    - /kaniko/executor
-      --context ./backend
-      --dockerfile ./backend/Dockerfile
-      --destination $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG
+    - |
+      for ARCH in ${ARCHITECTURES//,/ }; do
+        /kaniko/executor \
+          --context ./backend \
+          --dockerfile ./backend/Dockerfile \
+          --destination $CI_REGISTRY/$PROJECT/backend:${CI_IMAGE_TAG}-$ARCH \
+          --build-arg ARCH=$ARCH
+      done
 
 build_frontend:
   stage: build
@@ -43,7 +49,27 @@ build_frontend:
   script:
     - mkdir -p /kaniko/.docker
     - cp .docker/config.json /kaniko/.docker/config.json
-    - /kaniko/executor
-      --context ./frontend
-      --dockerfile ./frontend/Dockerfile
-      --destination $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG
+    - |
+      for ARCH in ${ARCHITECTURES//,/ }; do
+        /kaniko/executor \
+          --context ./frontend \
+          --dockerfile ./frontend/Dockerfile \
+          --destination $CI_REGISTRY/$PROJECT/frontend:${CI_IMAGE_TAG}-$ARCH \
+          --build-arg ARCH=$ARCH
+      done
+
+create_and_push_manifest:
+  stage: manifest
+  image: ghcr.io/estesp/manifest-tool:latest
+  script:
+    - manifest-tool push from-args \
+        --platforms linux/amd64,linux/arm64 \
+        --template $CI_REGISTRY/$PROJECT/backend:${CI_IMAGE_TAG}-ARCH \
+        --target $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG
+    - manifest-tool push from-args \
+        --platforms linux/amd64,linux/arm64 \
+        --template $CI_REGISTRY/$PROJECT/frontend:${CI_IMAGE_TAG}-ARCH \
+        --target $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG
+  dependencies:
+    - build_backend
+    - build_frontend
