@@ -1,6 +1,7 @@
 image: gcr.io/kaniko-project/executor:latest
 
 stages:
+  - init
   - build
 
 variables:
@@ -9,15 +10,22 @@ variables:
   CI_REGISTRY: harbor.godlyobeng.com
   DOCKER_CONFIG: /kaniko/.docker/
 
-before_script:
-  - mkdir -p /kaniko/.docker
-  - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+init_script:
+  image: busybox:latest
+  stage: init
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > .docker/config.json
+  artifacts:
+    paths:
+      - .docker/
 
 build_backend:
   stage: build
   tags:
     - kubernetes
   script:
+    - mkdir -p /kaniko/.docker
+    - cp .docker/config.json /kaniko/.docker/config.json
     - /kaniko/executor
       --context ./backend
       --dockerfile ./backend/Dockerfile
@@ -28,6 +36,8 @@ build_frontend:
   tags:
     - kubernetes
   script:
+    - mkdir -p /kaniko/.docker
+    - cp .docker/config.json /kaniko/.docker/config.json
     - /kaniko/executor
       --context ./frontend
       --dockerfile ./frontend/Dockerfile
