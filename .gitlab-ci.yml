@@ -1,26 +1,83 @@
-image: docker:latest
+image:
+  name: gcr.io/kaniko-project/executor:debug
+  entrypoint: [""]
 
-services:
-  - docker:dind
 stages:
+  - init
   - build
+  - manifest
 
 variables:
   PROJECT: schoolsaas
   CI_IMAGE_TAG: alpha
   CI_REGISTRY: harbor.godlyobeng.com
+  DOCKER_CONFIG: /kaniko/.docker/
+  ARCHITECTURES: "amd64,arm64"
 
-before_script:
-  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+init_script:
+  image: busybox:latest
+  stage: init
+  tags:
+    - kubernetes
+  script:
+    - mkdir .docker/
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > .docker/config.json
+  artifacts:
+    paths:
+      - .docker/
 
 build_backend:
   stage: build
+  tags:
+    - kubernetes
   script:
-    - docker build -t $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG ./backend
-    - docker push $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG
+    - mkdir -p /kaniko/.docker
+    - cp .docker/config.json /kaniko/.docker/config.json
+    - |
+      for ARCH in ${ARCHITECTURES//,/ }; do
+        /kaniko/executor --cache=false \
+          --context ./backend \
+          --dockerfile ./backend/Dockerfile \
+          --destination $CI_REGISTRY/$PROJECT/backend:${CI_IMAGE_TAG}-$ARCH \
+          --build-arg ARCH=$ARCH \
+          --snapshotMode=redo \
+          --use-new-run \
+          --cleanup
+      done
 
 build_frontend:
   stage: build
+  tags:
+    - kubernetes
   script:
-    - docker build -t $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG ./frontend
-    - docker push $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG
+    - mkdir -p /kaniko/.docker
+    - cp .docker/config.json /kaniko/.docker/config.json
+    - |
+      for ARCH in ${ARCHITECTURES//,/ }; do
+        /kaniko/executor --cache=false \
+          --context ./frontend \
+          --dockerfile ./frontend/Dockerfile \
+          --destination $CI_REGISTRY/$PROJECT/frontend:${CI_IMAGE_TAG}-$ARCH \
+          --build-arg ARCH=$ARCH \
+          --snapshotMode=redo \
+          --use-new-run \
+          --cleanup
+      done
+
+create_and_push_manifest:
+  stage: manifest
+  image: ghcr.io/estesp/manifest-tool:latest
+  script:
+    - |
+      manifest-tool push from-args \
+        --platforms linux/amd64,linux/arm64 \
+        --template $CI_REGISTRY/$PROJECT/backend:${CI_IMAGE_TAG}-ARCH \
+        --target $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG
+    - |
+      manifest-tool push from-args \
+        --platforms linux/amd64,linux/arm64 \
+        --template $CI_REGISTRY/$PROJECT/frontend:${CI_IMAGE_TAG}-ARCH \
+        --target $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG
+  dependencies:
+    - build_backend
+    - build_frontend
