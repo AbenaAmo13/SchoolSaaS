@@ -1,3 +1,0 @@
-authenticationUrls ={
-    'signUp': 'api/register/'
-}

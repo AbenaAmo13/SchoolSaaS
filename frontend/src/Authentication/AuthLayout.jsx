@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { data, useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router";
 import  './style/registration.css';
 import { loginFormFields, createSchoolFormFields} from './utils/constant';
 import { useState } from 'react';
@@ -13,11 +13,9 @@ const AuthLayout = ({ children }) => {
     const [loginFormState, setLginFormState] = useState(true) 
     const [error, setError]= useState(null)
     const navigate = useNavigate(); // Instantiate useNavigate
-    let baseUrl = process.env.REACT_APP_AUTHENTICATION_DJANGO_API_URL
+    let baseUrl = import.meta.env.REACT_APP_AUTHENTICATION_DJANGO_API_URL
     let endpoint = loginFormState ?'/login/' : '/school/'
     const {authenticationAction} = useAuth();
-
-
 
     useEffect(()=>{
         generateModuleOptions()

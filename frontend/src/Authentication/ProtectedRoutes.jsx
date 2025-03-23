@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../Providers/AuthenticationProvider";
 
 const PrivateRoute = () => {
