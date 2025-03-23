@@ -13,6 +13,8 @@ variables:
 init_script:
   image: busybox:latest
   stage: init
+  tags:
+    - kubernetes
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > .docker/config.json
   artifacts:
