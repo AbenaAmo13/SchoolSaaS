@@ -1,4 +1,6 @@
-image: gcr.io/kaniko-project/executor:latest
+image:
+  name: gcr.io/kaniko-project/executor:debug
+  entrypoint: [""]
 
 stages:
   - init
