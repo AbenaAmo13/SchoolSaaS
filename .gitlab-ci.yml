@@ -39,7 +39,10 @@ build_backend:
           --context ./backend \
           --dockerfile ./backend/Dockerfile \
           --destination $CI_REGISTRY/$PROJECT/backend:${CI_IMAGE_TAG}-$ARCH \
-          --build-arg ARCH=$ARCH
+          --build-arg ARCH=$ARCH \
+          --snapshotMode=redo \
+          --use-new-run \
+          --cleanup
       done
 
 build_frontend:
@@ -55,7 +58,10 @@ build_frontend:
           --context ./frontend \
           --dockerfile ./frontend/Dockerfile \
           --destination $CI_REGISTRY/$PROJECT/frontend:${CI_IMAGE_TAG}-$ARCH \
-          --build-arg ARCH=$ARCH
+          --build-arg ARCH=$ARCH \
+          --snapshotMode=redo \
+          --use-new-run \
+          --cleanup
       done
 
 create_and_push_manifest:
