@@ -1,5 +1,5 @@
 #!/bin/sh
- echo "$DATABASE"
+echo "$DATABASE"
 if [ "$DATABASE" = "postgres" ]
 then
     echo "Waiting for postgres..."
@@ -11,12 +11,14 @@ then
     echo "PostgreSQL started"
     python manage.py makemigrations
     python manage.py migrate
-
     python manage.py collectstatic --noinput
+
     if [ "$DEBUG" = "True" ]
     then
+        echo "Development mode"
         python manage.py runserver 0.0.0.0:8001 
     else
+        echo "Production mode"
         gunicorn school_management_service.wsgi:application --bind 0.0.0.0:8001
     fi
 

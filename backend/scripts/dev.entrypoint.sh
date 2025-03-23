@@ -21,8 +21,5 @@ then
         gunicorn backend.wsgi:application --bind 0.0.0.0:8000;
     fi
 
-    if [ "$DJANGO_SUPERUSER_USERNAME" ]
-    then
-        python manage.py createsuperuser --noinput;
-    fi
+    python manage.py createsuperuser --noinput;
 fi

@@ -25,7 +25,7 @@ COPY --chown=appuser:appuser . .
 # Ensure the entrypoint script is executable
 RUN chmod +x ./scripts/dev.entrypoint.sh
 
-USER appuser
+#USER appuser
 
 EXPOSE 8000 
 

@@ -22,10 +22,11 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 COPY --chown=appuser:appuser . .
 
+# Switch to non-root user
+#USER appuser
+
 # Ensure the entrypoint script is executable
 RUN chmod +x ./scripts/dev.entrypoint.sh
-
-USER appuser
 
 EXPOSE 8001
 
