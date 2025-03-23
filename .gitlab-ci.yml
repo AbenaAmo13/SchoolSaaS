@@ -62,11 +62,13 @@ create_and_push_manifest:
   stage: manifest
   image: ghcr.io/estesp/manifest-tool:latest
   script:
-    - manifest-tool push from-args \
+    - |
+      manifest-tool push from-args \
         --platforms linux/amd64,linux/arm64 \
         --template $CI_REGISTRY/$PROJECT/backend:${CI_IMAGE_TAG}-ARCH \
         --target $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG
-    - manifest-tool push from-args \
+    - |
+      manifest-tool push from-args \
         --platforms linux/amd64,linux/arm64 \
         --template $CI_REGISTRY/$PROJECT/frontend:${CI_IMAGE_TAG}-ARCH \
         --target $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG
