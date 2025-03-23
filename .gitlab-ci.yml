@@ -35,7 +35,7 @@ build_backend:
     - cp .docker/config.json /kaniko/.docker/config.json
     - |
       for ARCH in ${ARCHITECTURES//,/ }; do
-        /kaniko/executor --no-cache \
+        /kaniko/executor --cache=false \
           --context ./backend \
           --dockerfile ./backend/Dockerfile \
           --destination $CI_REGISTRY/$PROJECT/backend:${CI_IMAGE_TAG}-$ARCH \
@@ -51,7 +51,7 @@ build_frontend:
     - cp .docker/config.json /kaniko/.docker/config.json
     - |
       for ARCH in ${ARCHITECTURES//,/ }; do
-        /kaniko/executor --no-cache \
+        /kaniko/executor --cache=false \
           --context ./frontend \
           --dockerfile ./frontend/Dockerfile \
           --destination $CI_REGISTRY/$PROJECT/frontend:${CI_IMAGE_TAG}-$ARCH \
