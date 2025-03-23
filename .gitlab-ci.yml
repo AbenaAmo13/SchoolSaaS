@@ -16,11 +16,11 @@ before_script:
 build_backend:
   stage: build
   script:
-    - docker build -t $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG ./backend -f Dockerfile
+    - docker build -t $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG ./backend
     - docker push $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG
 
 build_frontend:
   stage: build
   script:
-    - docker build -t $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG ./frontend -f Dockerfile
+    - docker build -t $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG ./frontend
     - docker push $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG
