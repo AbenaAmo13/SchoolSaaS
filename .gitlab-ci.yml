@@ -1,7 +1,5 @@
-image: docker:latest
+image: gcr.io/kaniko-project/executor:latest
 
-services:
-  - docker:dind
 stages:
   - build
 
@@ -9,18 +7,28 @@ variables:
   PROJECT: schoolsaas
   CI_IMAGE_TAG: alpha
   CI_REGISTRY: harbor.godlyobeng.com
+  DOCKER_CONFIG: /kaniko/.docker/
 
 before_script:
-  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  - mkdir -p /kaniko/.docker
+  - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
 
 build_backend:
   stage: build
+  tags:
+    - kubernetes
   script:
-    - docker build -t $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG ./backend
-    - docker push $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG
+    - /kaniko/executor
+      --context ./backend
+      --dockerfile ./backend/Dockerfile
+      --destination $CI_REGISTRY/$PROJECT/backend:$CI_IMAGE_TAG
 
 build_frontend:
   stage: build
+  tags:
+    - kubernetes
   script:
-    - docker build -t $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG ./frontend
-    - docker push $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG
+    - /kaniko/executor
+      --context ./frontend
+      --dockerfile ./frontend/Dockerfile
+      --destination $CI_REGISTRY/$PROJECT/frontend:$CI_IMAGE_TAG
