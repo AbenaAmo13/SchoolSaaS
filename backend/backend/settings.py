@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load .env file from the project root
 dotenv_path = os.path.join(BASE_DIR, ".env")
 load_dotenv(dotenv_path)
-SECRET_KEY = os.getenv("SECRET_KEY")  
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")  
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG",True)
 IS_PRODUCTION = not DEBUG  # Set this to "True" in production

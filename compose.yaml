@@ -37,7 +37,9 @@ services:
 
 # Authentication Service    
   django_authentication_backend:
-    image: harbor.godlyobeng.com/schoolsaas/backend:0.1
+    build: 
+        context: ./backend
+        dockerfile: Dockerfile
     container_name: django_authentication_backend
     networks:
       - schoolsaas

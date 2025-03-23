@@ -1,6 +1,6 @@
 #!/bin/ash
 
-if [ "$DATABASE" = "postgres" ]
+if [ "$DATABASE" = "postgres" ]; then
     echo "Waiting for postgres..."
     while ! nc -z $AUTHENTICATION_DB_HOST $DB_PORT; do
         sleep 1
@@ -12,12 +12,13 @@ if [ "$DATABASE" = "postgres" ]
 
     echo "Running collectstatic"
     python manage.py collectstatic --noinput
-    if [ "$DEBUG" = "True" ]
-        python manage.py runserver 0.0.0.0:8000;
+
+    if [ "$DEBUG" = "True" ]; then
+        python manage.py runserver 0.0.0.0:8000
     else
-        gunicorn backend.wsgi:application --bind 0.0.0.0:8000;
+        gunicorn backend.wsgi:application --bind 0.0.0.0:8000
     fi
 
     echo "Create super user"
-    python manage.py createsuperuser --noinput;
+    python manage.py createsuperuser --noinput
 fi
