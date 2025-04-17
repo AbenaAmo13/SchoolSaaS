@@ -13,7 +13,7 @@ const AuthLayout = ({ children }) => {
     const [loginFormState, setLginFormState] = useState(true) 
     const [error, setError]= useState(null)
     const navigate = useNavigate(); // Instantiate useNavigate
-    let baseUrl = import.meta.env.REACT_APP_AUTHENTICATION_DJANGO_API_URL
+    let baseUrl = import.meta.env.VITE_APP_AUTHENTICATION_DJANGO_API_URL
     let endpoint = loginFormState ?'/login/' : '/school/'
     const {authenticationAction} = useAuth();
 
@@ -28,7 +28,7 @@ const AuthLayout = ({ children }) => {
 
     async function generateModuleOptions(){
       const getModules =  createAxiosInstance(baseUrl); // Authentication base URL
-      let fullEndpoint = `${baseUrl}/api/register/`
+      let fullEndpoint = `${baseUrl}/register/`
       console.log(baseUrl)
       const response = await getModules.get(fullEndpoint);
       const data = response.data

@@ -10,10 +10,14 @@ const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeC
   const [error, setError] = useState(null);
 
   function generateInitialState() {
-    return fields.reduce((acc, field) => {
-      acc[field.name] = field.type === 'checkbox' ? false : (field.type === 'select' ? field.options[0].value : '');
-      return acc;
-    }, {});
+    return fields.reduce((acc, field) => ({
+      ...acc,
+      [field.name]: field.type === 'checkbox'
+        ? false
+        : field.type === 'select'
+          ? field.options?.[0]?.value ?? ''
+          : ''
+    }), {});
   }
 
   useEffect(()=>{
