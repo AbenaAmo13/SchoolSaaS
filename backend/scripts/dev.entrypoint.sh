@@ -22,3 +22,5 @@ if [ "$DATABASE" = "postgres" ]; then
     echo "Create super user"
     python manage.py createsuperuser --noinput
 fi
+
+exec "$@"

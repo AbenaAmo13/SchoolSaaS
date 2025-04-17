@@ -90,7 +90,7 @@ const AuthLayout = ({ children }) => {
             <div className='btn-containers align-center min-gap'>
                 <i className={`${loginFormState? 'fas fa-school' : 'fas fa-sign-in-alt'} `}></i>
                 <button className='create-btn' onClick={toggleFormState}>
-                    {loginFormState ? 'Create Schol' : 'Login'}
+                    {loginFormState ? 'Create School' : 'Login'}
                 </button>
 
             </div>

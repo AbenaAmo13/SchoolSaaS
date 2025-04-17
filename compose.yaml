@@ -106,14 +106,19 @@ services:
 
 # Frontend service      
   frontend:
-      image: harbor.godlyobeng.com/schoolsaas/frontend:0.1
+      build: 
+        context: ./frontend
+        dockerfile: Dockerfile
       environment:
-        REACT_APP_AUTHENTICATION_DJANGO_API_URL: ${REACT_APP_AUTHENTICATION_DJANGO_API_URL}
+        VITE_APP_AUTHENTICATION_DJANGO_API_URL: ${VITE_APP_AUTHENTICATION_DJANGO_API_URL}
+        CHOKIDAR_USEPOLLING: 'true'
       env_file:
       - ./frontend/.env
       networks:
         - schoolsaas
-
+      volumes:
+        - ./frontend:/app
+        - /app/node_modules
 # Volume declarations        
 volumes:
   sm_media_volume:
