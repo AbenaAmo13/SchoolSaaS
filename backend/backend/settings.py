@@ -139,8 +139,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+# Static files
+STATIC_URL = '/static/auth/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-STATIC_URL = 'static/'
+# Media files (for user uploads)
+MEDIA_URL = '/media/auth/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -184,13 +189,7 @@ SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "None"
 
 
-# Static files
-STATIC_URL = '/static/auth/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files (for user uploads)
-MEDIA_URL = '/media/auth/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
  
 
