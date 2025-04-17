@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { data, useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router";
 import  './style/registration.css';
 import { loginFormFields, createSchoolFormFields} from './utils/constant';
 import { useState } from 'react';
@@ -13,11 +13,9 @@ const AuthLayout = ({ children }) => {
     const [loginFormState, setLginFormState] = useState(true) 
     const [error, setError]= useState(null)
     const navigate = useNavigate(); // Instantiate useNavigate
-    let baseUrl = process.env.REACT_APP_AUTHENTICATION_DJANGO_API_URL
+    let baseUrl = import.meta.env.VITE_APP_AUTHENTICATION_DJANGO_API_URL
     let endpoint = loginFormState ?'/login/' : '/school/'
     const {authenticationAction} = useAuth();
-
-
 
     useEffect(()=>{
         generateModuleOptions()
@@ -30,7 +28,7 @@ const AuthLayout = ({ children }) => {
 
     async function generateModuleOptions(){
       const getModules =  createAxiosInstance(baseUrl); // Authentication base URL
-      let fullEndpoint = `${baseUrl}/api/register/`
+      let fullEndpoint = `${baseUrl}/register/`
       console.log(baseUrl)
       const response = await getModules.get(fullEndpoint);
       const data = response.data
@@ -92,7 +90,7 @@ const AuthLayout = ({ children }) => {
             <div className='btn-containers align-center min-gap'>
                 <i className={`${loginFormState? 'fas fa-school' : 'fas fa-sign-in-alt'} `}></i>
                 <button className='create-btn' onClick={toggleFormState}>
-                    {loginFormState ? 'Create Schol' : 'Login'}
+                    {loginFormState ? 'Create School' : 'Login'}
                 </button>
 
             </div>

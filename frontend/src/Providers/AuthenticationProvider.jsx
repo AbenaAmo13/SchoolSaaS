@@ -1,5 +1,5 @@
 import { useContext, createContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import axios from 'axios';
 import createAxiosInstance from '../utils/axiosInstance'
 
@@ -13,7 +13,7 @@ const AuthProvider = ({ children }) => {
   const [school, setSchool] = useState(null)
   const [accessToken, setAccessToken] = useState(null)
   const navigate = useNavigate();
-  let baseUrl = process.env.REACT_APP_AUTHENTICATION_DJANGO_API_URL
+  let baseUrl = import.meta.env.REACT_APP_AUTHENTICATION_DJANGO_API_URL
   const authAxios = createAxiosInstance(baseUrl); // Authentication base URL
 
   

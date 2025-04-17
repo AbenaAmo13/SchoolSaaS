@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load .env file from the project root
 dotenv_path = os.path.join(BASE_DIR, ".env")
 load_dotenv(dotenv_path)
-SECRET_KEY = os.getenv("SECRET_KEY")  
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")  
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG",True)
 IS_PRODUCTION = not DEBUG  # Set this to "True" in production
@@ -97,9 +97,9 @@ DATABASES = {
          'ENGINE': 'django.db.backends.{}'.format(
              os.getenv('DATABASE_ENGINE', 'sqlite3')
          ),
-         'NAME': os.getenv('DATABASE_NAME', 'polls'),
-         'USER': os.getenv('DATABASE_USERNAME', 'myprojectuser'),
-         'PASSWORD': os.getenv('DATABASE_PASSWORD', 'password'),
+         'NAME': os.getenv('DATABASE_NAME', 'auth'),
+         'USER': os.getenv('DATABASE_USERNAME', 'myauth'),
+         'PASSWORD': os.getenv('DATABASE_PASSWORD', 'myauthpassword'),
          'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
          'PORT': os.getenv('DATABASE_PORT', 5432),
      }
@@ -139,8 +139,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+# Static files
+STATIC_URL = '/static/auth/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-STATIC_URL = 'static/'
+# Media files (for user uploads)
+MEDIA_URL = '/media/auth/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -184,13 +189,7 @@ SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "None"
 
 
-# Static files
-STATIC_URL = '/static/auth/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files (for user uploads)
-MEDIA_URL = '/media/auth/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
  
 

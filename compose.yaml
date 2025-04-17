@@ -23,7 +23,7 @@ services:
 
 # Authentication Database      
   authentication_db:
-    image: postgres:17
+    image: postgres:17.4
     environment:
       POSTGRES_DB: ${AUTHENTICATION_DB_BACKEND}
       POSTGRES_USER: ${AUTHENTICATION_DB_USERNAME}
@@ -38,8 +38,8 @@ services:
 # Authentication Service    
   django_authentication_backend:
     build: 
-      context: ./backend
-      dockerfile: dev.Dockerfile
+        context: ./backend
+        dockerfile: Dockerfile
     container_name: django_authentication_backend
     networks:
       - schoolsaas
@@ -64,7 +64,7 @@ services:
 
 # School Management Database
   school_management_db:
-    image: postgres:17
+    image: postgres:17.4
     environment:
       POSTGRES_DB: ${SCHOOL_MANAGEMENT_DB_BACKEND}
       POSTGRES_USER: ${SCHOOL_MANAGEMENT_DB_USERNAME}
@@ -80,7 +80,7 @@ services:
   school_management_service:
     build: 
         context: ./school_management_service
-        dockerfile: dev.Dockerfile
+        dockerfile: Dockerfile
     container_name: school_management_service
     depends_on:
         - django_authentication_backend
@@ -108,14 +108,17 @@ services:
   frontend:
       build: 
         context: ./frontend
-        dockerfile: dev.Dockerfile
+        dockerfile: Dockerfile
       environment:
-        REACT_APP_AUTHENTICATION_DJANGO_API_URL: ${REACT_APP_AUTHENTICATION_DJANGO_API_URL}
+        VITE_APP_AUTHENTICATION_DJANGO_API_URL: ${VITE_APP_AUTHENTICATION_DJANGO_API_URL}
+        CHOKIDAR_USEPOLLING: 'true'
       env_file:
       - ./frontend/.env
       networks:
         - schoolsaas
-
+      volumes:
+        - ./frontend:/app
+        - /app/node_modules
 # Volume declarations        
 volumes:
   sm_media_volume:
