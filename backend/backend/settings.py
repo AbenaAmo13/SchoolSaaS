@@ -97,11 +97,11 @@ DATABASES = {
          'ENGINE': 'django.db.backends.{}'.format(
              os.getenv('DATABASE_ENGINE', 'sqlite3')
          ),
-         'NAME': os.getenv('DATABASE_NAME', 'auth'),
-         'USER': os.getenv('DATABASE_USERNAME', 'myauth'),
-         'PASSWORD': os.getenv('DATABASE_PASSWORD', 'myauthpassword'),
-         'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
-         'PORT': os.getenv('DATABASE_PORT', 5432),
+         'NAME': os.getenv('DATABASE_NAME'),
+         'USER': os.getenv('DATABASE_USERNAME'),
+         'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+         'HOST': os.getenv('DATABASE_HOST'),
+         'PORT': os.getenv('DATABASE_PORT'),
      }
  }
 
