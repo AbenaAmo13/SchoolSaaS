@@ -113,7 +113,7 @@ services:
         VITE_APP_AUTHENTICATION_DJANGO_API_URL: ${VITE_APP_AUTHENTICATION_DJANGO_API_URL}
         CHOKIDAR_USEPOLLING: 'true'
       env_file:
-      - ./frontend/.env
+        - ./frontend/.env
       networks:
         - schoolsaas
       volumes:
