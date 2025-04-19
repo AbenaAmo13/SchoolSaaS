@@ -56,6 +56,7 @@ services:
       DATABASE_PASSWORD: ${AUTHENTICATION_DB_PASSWORD}
       DATABASE_HOST: ${AUTHENTICATION_DB_HOST}
       DATABASE_PORT: ${DB_PORT}
+      user: "${UID}:${GID}"
     env_file:
       - .env
     volumes:

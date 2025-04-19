@@ -21,15 +21,21 @@ RUN adduser -D -u 1000 appuser
 
 WORKDIR /usr/src/auth-app
 
+
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 COPY --chown=appuser:appuser . .
 
+
+# Give appuser ownership of the static and media directories
+RUN mkdir -p /usr/src/auth-app/staticfiles /usr/src/auth-app/media \
+    && chown -R appuser:appuser /usr/src/auth-app/staticfiles /usr/src/auth-app/media
+
 # Ensure the entrypoint script is executable
 RUN chmod +x /usr/src/auth-app/scripts/dev.entrypoint.sh
 
-#USER appuser
+USER appuser
 
 EXPOSE 8000 
 

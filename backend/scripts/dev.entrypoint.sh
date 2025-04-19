@@ -13,14 +13,18 @@ if [ "$DATABASE" = "postgres" ]; then
     echo "Running collectstatic"
     python manage.py collectstatic --noinput
 
+    echo "Create super user"
+    python manage.py createsuperuser --noinput
+
     if [ "$DEBUG" = "True" ]; then
+        echo "Dev"
         python manage.py runserver 0.0.0.0:8000
     else
+        echo "Prod"
         gunicorn backend.wsgi:application --bind 0.0.0.0:8000
     fi
 
-    echo "Create super user"
-    python manage.py createsuperuser --noinput
+  
 fi
 
 exec "$@"
