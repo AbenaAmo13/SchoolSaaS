@@ -14,7 +14,6 @@ const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null)
   const navigate = useNavigate();
   let baseUrl = import.meta.env.VITE_APP_AUTHENTICATION_DJANGO_API_URL
-  console.log()
   const authAxios = createAxiosInstance(baseUrl); // Authentication base URL
 
   
