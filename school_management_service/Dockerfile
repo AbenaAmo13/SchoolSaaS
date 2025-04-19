@@ -22,8 +22,12 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 COPY --chown=appuser:appuser . .
 
+# Give appuser ownership of the static and media directories
+RUN mkdir -p /app/staticfiles /app/media \
+    && chown -R appuser:appuser /app/staticfiles /app/media
+
 # Switch to non-root user
-#USER appuser
+USER appuser
 
 # Ensure the entrypoint script is executable
 RUN chmod +x ./scripts/dev.entrypoint.sh
