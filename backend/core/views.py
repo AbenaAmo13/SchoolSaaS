@@ -86,7 +86,6 @@ class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         try:
             refresh_token = request.COOKIES.get('refresh_token')
-            print(refresh_token)
             request.data['refresh'] = refresh_token
             response = super().post(request, *args, **kwargs)
             tokens = response.data
@@ -103,14 +102,12 @@ class CustomTokenRefreshView(TokenRefreshView):
             )
             return res
         except Exception as e:
-            print(e)
             return Response({'refreshed': False})
 
 
 class ReloadTokens(APIView):
     permission_classes = [permissions.AllowAny]
     def get(self, request):
-        print(request.COOKIES)
         try:
             refresh_token = request.COOKIES.get('refresh_token', None)
             if not refresh_token:
@@ -136,7 +133,6 @@ class LoginView(APIView):
             access_token = str(refresh.access_token)
             response = Response({'user': user_information, 'access_token': access_token, 'refresh_token': refresh_token}, status=status.HTTP_200_OK)
             is_production = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE']  # True in prod, False in dev
-            print(is_production)
             # Set HttpOnly, Secure, SameSite cookies
             response.set_cookie(
                     key=settings.SIMPLE_JWT['AUTH_COOKIE'], 

@@ -8,8 +8,6 @@ const PrivateRoute = () => {
    // Trigger token refresh if expired
    useEffect(() => {
     // Check for token expiration and refresh if needed
-    console.log(`The access token ${accessToken}`)
-    console.log(`The authentication ${isAuthenticated}`)
     refreshTokenIfExpired();
   }, [isAuthenticated]);
 
