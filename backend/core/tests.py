@@ -3,6 +3,7 @@ from rest_framework.test import APITestCase
 from core.models import ApplicationModules
 from django.urls import reverse
 from rest_framework import status
+import json
 
 # Create your tests here.
 class RegisterSchoolTest(APITestCase):
@@ -19,14 +20,16 @@ class RegisterSchoolTest(APITestCase):
     
     def test_registry_school(self):
         url = reverse('register-school')
-        print(self.modules)
+        self.client = self.client_class(HTTP_X_FORWARDED_PROTO='https')
+        print(url)
+        print(list(self.modules))
         data={
             "school": {
                 "name": "ENAS Hybrid School",
                 "email": "ehs12@gmail.com",
                 "contact_number": "07983363040",
                 "school_acronym": "EHS",
-                "cambridge_certified": "on",
+                "cambridge_certified": True,
                 "modules": list(self.modules)
             },
             "user": {
@@ -37,8 +40,10 @@ class RegisterSchoolTest(APITestCase):
                 "is_staff": True
             }
         }
-        response = self.client.post(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.post(url, data, format="json")
+        print("Status Code:", response.status_code)
+        print(response)  # See where it's redirecting to
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
     
