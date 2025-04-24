@@ -66,9 +66,6 @@ class RegisterSchoolTest(APITestCase):
         duplicate_response = self.client.post(reverse('register-school'), self.school_data, format='json')
         self.assertEqual(duplicate_response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        errors = duplicate_response.json()
-        print(errors)
-
 
 
 
