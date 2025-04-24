@@ -15,22 +15,15 @@ class RegisterSchoolTest(APITestCase):
         ApplicationModules.objects.bulk_create(modules)
         # Use bulk_create to add all employees at once
         self.modules= ApplicationModules.objects.values_list('id', flat=True)[:2]
-
-
-    
-    def test_registry_school(self):
-        url = reverse('register-school')
-        self.client = self.client_class(HTTP_X_FORWARDED_PROTO='https')
-        print(url)
-        print(list(self.modules))
-        data={
+            # Create the first school
+        self.school_data = {
             "school": {
                 "name": "ENAS Hybrid School",
                 "email": "ehs12@gmail.com",
                 "contact_number": "07983363040",
                 "school_acronym": "EHS",
                 "cambridge_certified": True,
-                "modules": list(self.modules)
+                "modules":  ApplicationModules.objects.values_list('id', flat=True)[:2]
             },
             "user": {
                 "username": "abenaadmin2",
@@ -40,10 +33,46 @@ class RegisterSchoolTest(APITestCase):
                 "is_staff": True
             }
         }
-        response = self.client.post(url, data, format="json")
-        print("Status Code:", response.status_code)
-        print(response)  # See where it's redirecting to
+
+
+    
+    def test_registry_school(self):
+        url = reverse('register-school')
+        self.client = self.client_class(HTTP_X_FORWARDED_PROTO='https')
+        response = self.client.post(url, self.school_data, format="json")
+        response_data = response.json()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # TOKEN VALUES
+        self.assertTrue(len(response_data['access_token']) > 0)
+        self.assertTrue(len(response_data['refresh_token']) > 0)
+
+        # USER STRUCTURE + TYPE
+        user = response_data['user']
+        self.assertEqual(user['username'], "abenaadmin2")
+        self.assertEqual(user['email'], 'ehs12@gmail.com')
+        self.assertEqual(user['role'], 'admin')
+        self.assertTrue(user['is_staff'])
+
+        school = response_data['school']
+    
+    def test_duplicate_entries(self):
+        self.client = self.client_class(HTTP_X_FORWARDED_PROTO='https')
+
+        # First registration - should succeed
+        first_response = self.client.post(reverse('register-school'), self.school_data, format='json')
+        self.assertEqual(first_response.status_code, status.HTTP_201_CREATED)
+
+        # Second registration - should fail due to duplication
+        duplicate_response = self.client.post(reverse('register-school'), self.school_data, format='json')
+        self.assertEqual(duplicate_response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = duplicate_response.json()
+        print(errors)
+
+
+
+
+
 
 
     
