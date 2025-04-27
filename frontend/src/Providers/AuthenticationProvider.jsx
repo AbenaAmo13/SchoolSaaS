@@ -58,9 +58,13 @@ function actionPostLoginOrSubmit(data){
     // Function to refresh the access token
     const refreshAccessToken = async () => {
         try {
-          const response = await authAxios.post(`${baseUrl}/api/token/refresh/`)
+          const response = await authAxios.post(`${baseUrl}/token/refresh/`)
           const newAccessToken = response.data.access;
-          setAccessToken(newAccessToken);
+          const newRefreshToken = response.data.refresh;
+          if (newAccessToken && newRefreshToken){
+            setAccessToken(newAccessToken);
+            setIsAuthenticated(true)
+          }
           authAxios.defaults.headers['Authorization'] = `Bearer ${newAccessToken}`; // Update the Axios default Authorization header
           return newAccessToken;
         } catch (err) {

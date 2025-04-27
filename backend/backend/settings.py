@@ -103,7 +103,7 @@ DATABASES = {
          'HOST': os.getenv('DATABASE_HOST'),
          'PORT': os.getenv('DATABASE_PORT'),
      }
- }
+ } 
 
 
 # Password validation

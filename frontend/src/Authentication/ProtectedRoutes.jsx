@@ -7,6 +7,7 @@ const PrivateRoute = () => {
 
    // Trigger token refresh if expired
    useEffect(() => {
+    console.log(`The access token is ${accessToken} and isAuthenticated is ${isAuthenticated} `)
     // Check for token expiration and refresh if needed
     refreshTokenIfExpired();
   }, [isAuthenticated]);
@@ -14,7 +15,7 @@ const PrivateRoute = () => {
   const refreshTokenIfExpired = async () => {
     if (!accessToken) {
       try {
-        await refreshAccessToken();  // Attempt to refresh the token
+       await refreshAccessToken();  // Attempt to refresh the token
       } catch (error) {
         console.error("Failed to refresh token", error); // If refreshing fails, log out the user or show an error
       }

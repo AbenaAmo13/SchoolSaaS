@@ -9,6 +9,9 @@ from rest_framework.exceptions import AuthenticationFailed
 from .models import School, User, ApplicationModules
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+import sys
 
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
@@ -82,28 +85,58 @@ class CreateSchoolAndAdminView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CustomTokenRefreshView(TokenRefreshView):
-    def post(self, request, *args, **kwargs):
-        try:
-            refresh_token = request.COOKIES.get('refresh_token')
-            request.data['refresh'] = refresh_token
-            response = super().post(request, *args, **kwargs)
-            tokens = response.data
-            access_token = tokens['access']
-            res = Response()
-            res.data = { 'access_token': access_token, 'refreshed': True}
-            res.set_cookie(
-                key='access_token',
-                value=access_token,
-                httponly=True,
-                secure=True,
-                samesite='None',
-                path='/'
-            )
-            return res
-        except Exception as e:
-            return Response({'refreshed': False})
 
+class CookieTokenRefreshSerializer(TokenRefreshSerializer):
+    refresh = None
+    def validate(self, attrs):
+        attrs['refresh'] = self.context['request'].COOKIES.get('refresh_token')
+        if attrs['refresh']:
+            return super().validate(attrs)
+        else:
+            raise InvalidToken('No valid token found in cookie \'refresh_token\'')
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    def finalize_response(self, request, response, *args, **kwargs):
+        print(f'response {response.data}', file=sys.stderr)
+        if response.data.get('refresh'):
+            cookie_max_age = 3600 * 24 * 14 # 14 days
+            response.set_cookie('refresh_token', response.data['refresh'], max_age=cookie_max_age, httponly=True )
+            del response.data['refresh']
+        return super().finalize_response(request, response, *args, **kwargs)
+    serializer_class = CookieTokenRefreshSerializer
+
+
+
+""" 
+    class CustomTokenRefreshView(TokenRefreshView):
+
+    Token Refresh View optimized for Microservice Architecture.
+    Uses authenticated user passed through request.
+    
+
+    def post(self, request, *args, **kwargs):
+        old_refresh_token = request.COOKIES.get('refresh_token')
+        if not old_refresh_token:
+            return Response({'detail': 'Refresh token missing.'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            refresh_token_obj = RefreshToken(old_refresh_token)
+            print(f'refresh token {refresh_token_obj}', file=sys.stderr)
+            new_access = refresh_token_obj.access_token
+            new_refresh = refresh_token_obj.refresh
+            response = Response({
+            'access': str(new_access),
+            'refresh': str(new_refresh)
+            })
+            
+            response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Strict')
+            response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
+            return response
+        except TokenError as e:
+            return Response({'detail': str(e)}, status=status.HTTP_401_UNAUTHORIZED) 
+"""
+
+       
 
 class ReloadTokens(APIView):
     permission_classes = [permissions.AllowAny]

@@ -1,8 +1,8 @@
 # Stage 1: Builder stage for dependencies
 FROM python:3.13.2-alpine AS builder
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1 
+#ENV PYTHONDONTWRITEBYTECODE=1
+#ENV PYTHONUNBUFFERED=1 
 
 WORKDIR /app
 COPY requirements.txt /app/
