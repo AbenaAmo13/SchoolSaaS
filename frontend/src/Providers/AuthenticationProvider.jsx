@@ -59,14 +59,13 @@ function actionPostLoginOrSubmit(data){
     const refreshAccessToken = async () => {
         try {
           const response = await authAxios.post(`${baseUrl}/token/refresh/`)
-          const newAccessToken = response.data.access_token;
-          const newRefreshToken = response.data.refresh_token;
-          if (newAccessToken && newRefreshToken){
-            setAccessToken(newAccessToken);
+          console.log(`The response is ${JSON.stringify(response)}`)
+          if(response.success){
+            setAccessToken(response.data.access_token);
+            setRefreshToken(response.data.refresh_token)
             setIsAuthenticated(true)
           }
           authAxios.defaults.headers['Authorization'] = `Bearer ${newAccessToken}`; // Update the Axios default Authorization header
-          return newAccessToken;
         } catch (err) {
           console.error("Token refresh failed:", err);
           logout();
