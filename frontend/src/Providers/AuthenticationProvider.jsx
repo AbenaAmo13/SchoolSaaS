@@ -59,8 +59,8 @@ function actionPostLoginOrSubmit(data){
     const refreshAccessToken = async () => {
         try {
           const response = await authAxios.post(`${baseUrl}/token/refresh/`)
-          const newAccessToken = response.data.access;
-          const newRefreshToken = response.data.refresh;
+          const newAccessToken = response.data.access_token;
+          const newRefreshToken = response.data.refresh_token;
           if (newAccessToken && newRefreshToken){
             setAccessToken(newAccessToken);
             setIsAuthenticated(true)

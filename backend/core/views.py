@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from core.utils.utils import add_license_key, generate_unique_school_code_with_check
+from core.utils.utils import add_license_key, generate_unique_school_code_with_check, api_response
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
@@ -86,25 +86,54 @@ class CreateSchoolAndAdminView(APIView):
 
 
 
-class CookieTokenRefreshSerializer(TokenRefreshSerializer):
-    refresh = None
-    def validate(self, attrs):
-        attrs['refresh'] = self.context['request'].COOKIES.get('refresh_token')
-        if attrs['refresh']:
-            return super().validate(attrs)
-        else:
-            raise InvalidToken('No valid token found in cookie \'refresh_token\'')
-
-
 class CustomTokenRefreshView(TokenRefreshView):
-    def finalize_response(self, request, response, *args, **kwargs):
-        print(f'response {response.data}', file=sys.stderr)
-        if response.data.get('refresh'):
-            cookie_max_age = 3600 * 24 * 14 # 14 days
-            response.set_cookie('refresh_token', response.data['refresh'], max_age=cookie_max_age, httponly=True )
-            del response.data['refresh']
-        return super().finalize_response(request, response, *args, **kwargs)
-    serializer_class = CookieTokenRefreshSerializer
+    def post(self, request, *args, **kwargs):
+        try:
+            cookies_refresh_token = request.COOKIES.get('refresh_token')
+            if not cookies_refresh_token:
+                return Response({'detail': 'Refresh token missing'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Prepare data for the parent class
+            data = {'refresh': cookies_refresh_token}
+            serializer = self.get_serializer(data=data)
+
+            try:
+                serializer.is_valid(raise_exception=True)
+            except Exception as e:
+                print(f'serializer error {e}', file=sys.stderr)
+                return Response({'refreshed': False}, status=status.HTTP_401_UNAUTHORIZED)
+
+            access_token = serializer.validated_data['access']
+            new_refresh_token = serializer.validated_data['refresh']
+
+            data = {'access_token': access_token, 'refresh_token':new_refresh_token, 'refreshed': True}  
+            cookies = {
+                "access_token": {
+                    "value": access_token,
+                    "httponly": True,
+                    "secure": True,
+                    "samesite": "Strict",
+                },
+                "refresh_token": {
+                    "value": new_refresh_token,
+                    "httponly": True,
+                    "secure": True,
+                    "samesite": "Strict",
+                }
+            }     
+
+            return api_response(
+                success=True,
+                message="Token refresh successful",
+                cookies=cookies,
+                data= data,
+                status_code=200
+            )
+            
+        except Exception as e:
+            print(f'exception e {e}', file=sys.stderr)
+            return Response({'refreshed': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 
