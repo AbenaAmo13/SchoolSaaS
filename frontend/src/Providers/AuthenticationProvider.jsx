@@ -63,10 +63,8 @@ const AuthProvider = ({ children }) => {
         let newAccessToken = responseData.access_token
         if (response.data.success) {
           setAccessToken(newAccessToken);
-          console.log(newAccessToken, responseData.refresh_token)
           setRefreshToken(responseData.refresh_token)
           setIsAuthenticated(true)
-          console.log('it is successful')
         }
         authAxios.defaults.headers['Authorization'] = `Bearer ${newAccessToken}`; // Update the Axios default Authorization header
       }

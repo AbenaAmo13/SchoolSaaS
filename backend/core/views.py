@@ -137,35 +137,6 @@ class CustomTokenRefreshView(TokenRefreshView):
 
 
 
-""" 
-    class CustomTokenRefreshView(TokenRefreshView):
-
-    Token Refresh View optimized for Microservice Architecture.
-    Uses authenticated user passed through request.
-    
-
-    def post(self, request, *args, **kwargs):
-        old_refresh_token = request.COOKIES.get('refresh_token')
-        if not old_refresh_token:
-            return Response({'detail': 'Refresh token missing.'}, status=status.HTTP_401_UNAUTHORIZED)
-        try:
-            refresh_token_obj = RefreshToken(old_refresh_token)
-            print(f'refresh token {refresh_token_obj}', file=sys.stderr)
-            new_access = refresh_token_obj.access_token
-            new_refresh = refresh_token_obj.refresh
-            response = Response({
-            'access': str(new_access),
-            'refresh': str(new_refresh)
-            })
-            
-            response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Strict')
-            response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Strict')
-            return response
-        except TokenError as e:
-            return Response({'detail': str(e)}, status=status.HTTP_401_UNAUTHORIZED) 
-"""
-
-       
 
 class ReloadTokens(APIView):
     permission_classes = [permissions.AllowAny]
