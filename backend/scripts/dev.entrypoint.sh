@@ -10,6 +10,9 @@ if [ "$DATABASE" = "postgres" ]; then
     python manage.py makemigrations
     python manage.py migrate
 
+    echo "Initializing data"
+    python manage.py init_data
+
     echo "Running collectstatic"
     python manage.py collectstatic --noinput
 

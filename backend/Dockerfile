@@ -1,12 +1,10 @@
 # Stage 1: Builder stage for dependencies
 FROM python:3.13.2-alpine AS builder
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1 
-
+#ENV PYTHONDONTWRITEBYTECODE=1
+#ENV PYTHONUNBUFFERED=1 
 
 # Set environment variables and working directory
-
 WORKDIR /usr/src/auth-app
 
 COPY requirements.txt /usr/src/auth-app/
@@ -21,12 +19,10 @@ RUN adduser -D -u 1000 appuser
 
 WORKDIR /usr/src/auth-app
 
-
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 COPY --chown=appuser:appuser . .
-
 
 # Give appuser ownership of the static and media directories
 RUN mkdir -p /usr/src/auth-app/staticfiles /usr/src/auth-app/media \

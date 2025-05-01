@@ -10,18 +10,17 @@ const AuthProvider = ({ children }) => {
   const [refreshToken, setRefreshToken] = useState(null);
   const [authenticationError, setAuthenticationError] = useState(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthLoading, setIsAuthLoading] = useState(true); // initially loading
   const [school, setSchool] = useState(null)
   const [accessToken, setAccessToken] = useState(null)
   const navigate = useNavigate();
-  let baseUrl = import.meta.env.REACT_APP_AUTHENTICATION_DJANGO_API_URL
+  let baseUrl = import.meta.env.VITE_APP_AUTHENTICATION_DJANGO_API_URL
   const authAxios = createAxiosInstance(baseUrl); // Authentication base URL
 
-  
-
-function actionPostLoginOrSubmit(data){
+  function actionPostLoginOrSubmit(data) {
     setUser(data.user);
-    if(data.school){
-        setSchool(data.school)
+    if (data.school) {
+      setSchool(data.school)
     }
     setAccessToken(data['access_token'])
     setRefreshToken(data['refresh_token'])
@@ -29,7 +28,7 @@ function actionPostLoginOrSubmit(data){
     navigate('/homepage');
   }
 
-  async function postRequest(dataToSubmit, endpoint){
+  async function postRequest(dataToSubmit, endpoint) {
     let fullEndpoint = `${baseUrl}${endpoint}`
     const response = await authAxios.post(fullEndpoint, dataToSubmit);
     let data = response.data
@@ -40,10 +39,10 @@ function actionPostLoginOrSubmit(data){
     //endpoint can be login, /api/login endpoint can be sign up /api/registration
     setAuthenticationError(null)
     try {
-        let data = await  postRequest( dataToSubmit,endpoint)
-        if (data) {
-            actionPostLoginOrSubmit(data)
-        }
+      let data = await postRequest(dataToSubmit, endpoint)
+      if (data) {
+        actionPostLoginOrSubmit(data)
+      }
     } catch (err) {
       let errors = err.response ? err.response.data.non_field_errors : err.message
       let message = errors.join();
@@ -51,26 +50,36 @@ function actionPostLoginOrSubmit(data){
       throw err;  // Rethrow error to handle it in the parent (if necessary)
     }
   };
- 
 
-  
 
-    // Function to refresh the access token
-    const refreshAccessToken = async () => {
-        try {
-          const response = await authAxios.post(`${baseUrl}/api/token/refresh/`)
-          const newAccessToken = response.data.access;
+
+
+  // Function to refresh the access token
+  const refreshAccessToken = async () => {
+    try {
+      if(!accessToken){
+        const response = await authAxios.post(`${baseUrl}/token/refresh/`)
+        let responseData = response.data.data;
+        let newAccessToken = responseData.access_token
+        if (response.data.success) {
           setAccessToken(newAccessToken);
-          authAxios.defaults.headers['Authorization'] = `Bearer ${newAccessToken}`; // Update the Axios default Authorization header
-          return newAccessToken;
-        } catch (err) {
-          console.error("Token refresh failed:", err);
-          logout();
-          return null;
+          setRefreshToken(responseData.refresh_token)
+          setIsAuthenticated(true)
         }
-      };
+        authAxios.defaults.headers['Authorization'] = `Bearer ${newAccessToken}`; // Update the Axios default Authorization header
+      }
 
-      // Function to handle API requests that automatically refresh the token if expired
+    } catch (err) {
+      console.error("Token refresh failed:", err);
+      logout();
+      return null;
+    }finally{
+        setIsAuthLoading(false); // done checking
+    }
+    
+  };
+
+  // Function to handle API requests that automatically refresh the token if expired
   const handleRequest = async (requestFunction) => {
     try {
       return await requestFunction();
@@ -85,7 +94,7 @@ function actionPostLoginOrSubmit(data){
       }
       throw err; // If the error is not due to token expiration, rethrow it
     }
-}
+  }
 
   const logout = () => {
     setUser(null);
@@ -98,7 +107,7 @@ function actionPostLoginOrSubmit(data){
   };
 
   return (
-    <AuthContext.Provider value={{ accessToken, refreshToken, user, school , authenticationError, authenticationAction,logout, refreshAccessToken, handleRequest, isAuthenticated}}>
+    <AuthContext.Provider value={{ accessToken, refreshToken, user, school, authenticationError, authenticationAction, logout, refreshAccessToken, handleRequest, isAuthenticated, isAuthLoading }}>
       {children}
     </AuthContext.Provider>
   );

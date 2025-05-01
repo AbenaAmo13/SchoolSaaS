@@ -30,8 +30,10 @@ const createAxiosInstance = (baseURL, accessToken = null) => {
 
         try {
           // Attempt to refresh the access token using the refresh token
-          const refreshResponse = await axiosInstance.post('/api/refresh-token'); // Ensure your backend supports this
-          const newAccessToken = refreshResponse.data.access_token;
+
+          const refreshResponse = await axiosInstance.post('/token/refresh/'); // Ensure your backend supports this
+          let refreshResponseData = refreshResponse.data.data
+          const newAccessToken = refreshResponseData.access_token;
 
           // Attach the new access token to the original request and retry it
           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;

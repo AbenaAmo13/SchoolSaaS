@@ -33,7 +33,6 @@ class CreateSchoolAndAdminSerializer(serializers.Serializer):
     user = UserSerializer()
 
     def create(self, validated_data):
-        print(str(validated_data) + '\n')
         modules = self.initial_data.get('school').get('modules', None)
         # Extract school and user data from validated data
         school_data = validated_data.pop('school')
@@ -50,7 +49,6 @@ class CreateSchoolAndAdminSerializer(serializers.Serializer):
         user = User.objects.create_user(**user_data)
         allowed_user_permissions = ['change_school', 'view_school']
         permissions = Permission.objects.filter(codename__in=allowed_user_permissions) 
-        print(permissions)
         user.user_permissions.set(permissions)
         return {'school': school, 'user': user}
 

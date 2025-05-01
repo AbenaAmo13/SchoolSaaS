@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'django_extensions',
     'core',
     'corsheaders'
@@ -103,7 +104,7 @@ DATABASES = {
          'HOST': os.getenv('DATABASE_HOST'),
          'PORT': os.getenv('DATABASE_PORT'),
      }
- }
+ } 
 
 
 # Password validation

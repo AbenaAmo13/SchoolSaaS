@@ -2,13 +2,16 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from core.utils.utils import add_license_key, generate_unique_school_code_with_check
+from core.utils.utils import add_license_key, generate_unique_school_code_with_check, api_response
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from .models import School, User, ApplicationModules
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+import sys
 
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
@@ -82,35 +85,62 @@ class CreateSchoolAndAdminView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         try:
-            refresh_token = request.COOKIES.get('refresh_token')
-            print(refresh_token)
-            request.data['refresh'] = refresh_token
-            response = super().post(request, *args, **kwargs)
-            tokens = response.data
-            access_token = tokens['access']
-            res = Response()
-            res.data = { 'access_token': access_token, 'refreshed': True}
-            res.set_cookie(
-                key='access_token',
-                value=access_token,
-                httponly=True,
-                secure=True,
-                samesite='None',
-                path='/'
+            cookies_refresh_token = request.COOKIES.get('refresh_token')
+            if not cookies_refresh_token:
+                return Response({'detail': 'Refresh token missing'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Prepare data for the parent class
+            data = {'refresh': cookies_refresh_token}
+            serializer = self.get_serializer(data=data)
+
+            try:
+                serializer.is_valid(raise_exception=True)
+            except Exception as e:
+                print(f'serializer error {e}', file=sys.stderr)
+                return Response({'refreshed': False}, status=status.HTTP_401_UNAUTHORIZED)
+
+            access_token = serializer.validated_data['access']
+            new_refresh_token = serializer.validated_data['refresh']
+
+            data = {'access_token': access_token, 'refresh_token':new_refresh_token, 'refreshed': True}  
+            cookies = {
+                "access_token": {
+                    "value": access_token,
+                    "httponly": True,
+                    "secure": True,
+                    "samesite": "Strict",
+                },
+                "refresh_token": {
+                    "value": new_refresh_token,
+                    "httponly": True,
+                    "secure": True,
+                    "samesite": "Strict",
+                }
+            }     
+
+            return api_response(
+                success=True,
+                message="Token refresh successful",
+                cookies=cookies,
+                data= data,
+                status_code=200
             )
-            return res
+            
         except Exception as e:
-            print(e)
-            return Response({'refreshed': False})
+            print(f'exception e {e}', file=sys.stderr)
+            return Response({'refreshed': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 
 
 class ReloadTokens(APIView):
     permission_classes = [permissions.AllowAny]
     def get(self, request):
-        print(request.COOKIES)
         try:
             refresh_token = request.COOKIES.get('refresh_token', None)
             if not refresh_token:
@@ -136,7 +166,6 @@ class LoginView(APIView):
             access_token = str(refresh.access_token)
             response = Response({'user': user_information, 'access_token': access_token, 'refresh_token': refresh_token}, status=status.HTTP_200_OK)
             is_production = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE']  # True in prod, False in dev
-            print(is_production)
             # Set HttpOnly, Secure, SameSite cookies
             response.set_cookie(
                     key=settings.SIMPLE_JWT['AUTH_COOKIE'], 

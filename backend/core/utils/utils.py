@@ -2,6 +2,7 @@ import uuid
 import random
 import string
 from core.models import School
+from rest_framework.response import Response
 
 def generate_license_key(length=16, segments=4):
     """
@@ -52,9 +53,26 @@ def generate_unique_school_code_with_check():
     unique_code = generate_unique_school_code()
     while True:
         exists = School.objects.filter(unique_school_code=unique_code).exist()
-        print(exists)
         if exists:
             continue
         return unique_code
 
+
+def api_response(success=True, message="", cookies = None, data=None, status_code=200, errors=None):
+    response_structure = {
+        "success": success,
+        "message": message,
+        "data": data if data is not None else {},
+    }
+    if errors is not None:
+        response_structure["errors"] = errors
+
+    res = Response(response_structure, status=status_code)
+    if cookies:
+        for name, params in cookies.items():
+                value = params.pop('value', None)  # required
+                if value is None:
+                    raise ValueError(f"Cookie {name} is missing a 'value.")
+                res.set_cookie(name, value, **params)
+    return res
 

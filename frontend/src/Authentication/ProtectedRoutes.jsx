@@ -3,25 +3,14 @@ import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../Providers/AuthenticationProvider";
 
 const PrivateRoute = () => {
-  const {isAuthenticated, refreshAccessToken, accessToken} = useAuth();
+  const {isAuthenticated, refreshAccessToken, accessToken, isAuthLoading} = useAuth();
 
-   // Trigger token refresh if expired
-   useEffect(() => {
-    // Check for token expiration and refresh if needed
-    console.log(`The access token ${accessToken}`)
-    console.log(`The authentication ${isAuthenticated}`)
-    refreshTokenIfExpired();
-  }, [isAuthenticated]);
+  useEffect(()=>{
+    refreshAccessToken()
+  },[])
 
-  const refreshTokenIfExpired = async () => {
-    if (!accessToken) {
-      try {
-        await refreshAccessToken();  // Attempt to refresh the token
-      } catch (error) {
-        console.error("Failed to refresh token", error); // If refreshing fails, log out the user or show an error
-      }
-    }
-  };
+
+  if(isAuthLoading) return <h1>Loading...</h1>
 
 
   if (!isAuthenticated) return <Navigate to="/login" />;
