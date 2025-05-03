@@ -111,6 +111,7 @@ services:
         dockerfile: Dockerfile
       environment:
         VITE_APP_AUTHENTICATION_DJANGO_API_URL: ${VITE_APP_AUTHENTICATION_DJANGO_API_URL}
+        VITE_APP_HOST: 92.168.1.100
         CHOKIDAR_USEPOLLING: 'true'
       env_file:
         - ./frontend/.env
