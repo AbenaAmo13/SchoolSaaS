@@ -83,35 +83,36 @@ const AuthLayout = ({ children }) => {
   }
 
   return (
-    <div className='container'>
-        <div className="bg-image"></div>
-        <div className='content'>
-            <div className='btn-containers align-center min-gap'>
-                <i className={`${loginFormState? 'fas fa-school' : 'fas fa-sign-in-alt'} `}></i>
-                <button className='create-btn' onClick={toggleFormState}>
-                    {loginFormState ? 'Create School' : 'Login'}
-                </button>
+    <div className='auth-layout'>
+      <div className='container'>
+          <div className="bg-image"></div>
+          <div className='content'>
+              <div className='btn-containers align-center min-gap'>
+                  <i className={`${loginFormState? 'fas fa-school' : 'fas fa-sign-in-alt'} `}></i>
+                  <button className='create-btn' onClick={toggleFormState}>
+                      {loginFormState ? 'Create School' : 'Login'}
+                  </button>
 
-            </div>
-            <div>
-                <h1>Manage It</h1>
-                <p className='descriptive-text'> 
-                Welcome to Manage It, an all-in-one platform designed to streamline your school's administrative tasks. 
-                From efficient online reporting and record management to seamless billing and communication, our system simplifies everyday operations, allowing you to focus on what truly matters—education.
-                Log in or register to get started today!
-                </p>
-            </div>
-            <Form 
-                fields={loginFormState ? loginFormFields: createSchoolFormFields} 
-                customHandleSubmit={customHandleSubmit}
-            />
-        </div>
-        <main>
-        {children} {/* This is where the specific pages like Login or Register will be rendered */}
-        </main>
+              </div>
+              <div>
+                  <h1>Manage It</h1>
+                  <p className='descriptive-text'> 
+                  Welcome to Manage It, an all-in-one platform designed to streamline your school's administrative tasks. 
+                  From efficient online reporting and record management to seamless billing and communication, our system simplifies everyday operations, allowing you to focus on what truly matters—education.
+                  Log in or register to get started today!
+                  </p>
+              </div>
+              <Form 
+                  fields={loginFormState ? loginFormFields: createSchoolFormFields} 
+                  customHandleSubmit={customHandleSubmit}
+              />
+          </div>
+          <main>
+          {children} {/* This is where the specific pages like Login or Register will be rendered */}
+          </main>
 
+      </div>
     </div>
-
   );
 };
 

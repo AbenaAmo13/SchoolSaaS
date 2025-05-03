@@ -1,29 +1,48 @@
-import React, { useEffect } from 'react';
-import { Outlet} from "react-router";
-import SidebarExpandIcon from '@atlaskit/icon/core/sidebar-expand';
-import SidebarCollapseIcon from '@atlaskit/icon/core/sidebar-collapse';
-import { Box, Inline } from '@atlaskit/primitives';
-
-
-
-const ApplicationNavigation = ({ children }) => {
-  
+import React from 'react';
+import { Outlet } from 'react-router';
+import {
+  PanelLeftOpen,
+  LayoutGrid,
+  Home,
+  Search,
+  Bell,
+  HelpCircle,
+  Settings
+} from 'lucide-react';
+import './style/nav.css'; 
+const ApplicationNavigation = () => {
   return (
-    <div className='container'>
-        <h1>
-          Homepage
-          <Box>
-            <SidebarCollapseIcon/>
-            <SidebarExpandIcon/>
-        </Box>
-        </h1>
-       
-        <main>
-        <Outlet /> {/* This is where the specific pages like Login or Register will be rendered */}
-        </main>
+    <>
+      <nav className="nav-container">
+        {/* Left section */}
+        <div className="nav-left">
+          <button className="icon-button"><PanelLeftOpen size={20} /></button>
+          <button className="icon-button"><LayoutGrid size={20} /></button>
+          <button className="home-button">
+            <Home size={20} />
+            <span className="home-text">Home</span>
+          </button>
+        </div>
 
-    </div>
+        {/* Middle - search */}
+        <div className="nav-search">
+          <Search size={16} className="search-icon" />
+          <input type="text" className="search-input" placeholder="Search" />
+        </div>
 
+        {/* Right section */}
+        <div className="nav-right">
+          <button className="icon-button"><Bell size={20} /></button>
+          <button className="icon-button"><HelpCircle size={20} /></button>
+          <button className="icon-button"><Settings size={20} /></button>
+          <div className="avatar">AA</div>
+        </div>
+      </nav>
+
+      <main className="main-content">
+        <Outlet />
+      </main>
+    </>
   );
 };
 

@@ -10,18 +10,11 @@ export default defineConfig(({ mode }) => {
     base: './', // <-- important
     plugins: [react()],
     server: {
-      host: '0.0.0.0', // Allow access from Docker container
+      host: true, // Allow access from Docker container
       port: frontendPort,
       watch:{
         usePolling:true,
       },
-      fs: {
-        cachedChecks: false
-      }
     },
-    resolve: {
-      alias: [{ find: "@", replacement: resolve(__dirname, "./src") }]
-    }
-    
   }
 })
