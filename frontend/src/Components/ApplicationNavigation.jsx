@@ -25,9 +25,9 @@ const ApplicationNavigation = () => {
         </div>
 
         {/* Middle - search */}
-        <div className="nav-search">
-          <Search size={16} className="search-icon" />
-          <input type="text" className="search-input" placeholder="Search" />
+        <div className="nav-middle-search">
+          <h4>School SAAS</h4>
+          
         </div>
 
         {/* Right section */}

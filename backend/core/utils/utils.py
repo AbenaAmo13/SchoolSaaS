@@ -3,6 +3,9 @@ import random
 import string
 from core.models import School
 from rest_framework.response import Response
+from django.contrib.auth.models import User
+from core.serializers import UserSerializer, SchoolSerializer
+
 
 def generate_license_key(length=16, segments=4):
     """
@@ -76,3 +79,11 @@ def api_response(success=True, message="", cookies = None, data=None, status_cod
                 res.set_cookie(name, value, **params)
     return res
 
+
+def get_user_and_school_profile(user_id=None, user=None):
+    if user_id and user is None: 
+        user = User.objects.get(id=user_id)
+    user_information = UserSerializer(user).data
+    school = School.objects.get(id=user_information.get('school'))
+    school_data = SchoolSerializer(school).data
+    return {'user': user_information, 'school': school_data}

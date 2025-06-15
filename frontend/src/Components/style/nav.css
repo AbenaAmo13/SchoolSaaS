@@ -39,7 +39,7 @@
     cursor: pointer;
   }
   
-  .nav-search {
+  .nav-middle-search {
     display: flex;
     align-items: center;
     border: 1px solid #ccc;

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from core.utils.utils import add_license_key, generate_unique_school_code_with_check, api_response
+from core.utils.utils import add_license_key, generate_unique_school_code_with_check, api_response, get_user_and_school_profile
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
@@ -105,8 +105,11 @@ class CustomTokenRefreshView(TokenRefreshView):
 
             access_token = serializer.validated_data['access']
             new_refresh_token = serializer.validated_data['refresh']
-
-            data = {'access_token': access_token, 'refresh_token':new_refresh_token, 'refreshed': True}  
+            access_token_obj = AccessToken(access_token)
+            user_id=access_token_obj['user_id']
+            profile_data = get_user_and_school_profile(user_id)
+           
+            data = {'access_token': access_token, 'refresh_token':new_refresh_token,'refreshed': True, **profile_data}  
             cookies = {
                 "access_token": {
                     "value": access_token,
@@ -161,10 +164,11 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data
             user_information = UserSerializer(user).data
+            profile_data = get_user_and_school_profile('', user)
             refresh = RefreshToken.for_user(user)
             refresh_token =  str(refresh)
             access_token = str(refresh.access_token)
-            response = Response({'user': user_information, 'access_token': access_token, 'refresh_token': refresh_token}, status=status.HTTP_200_OK)
+            response = Response({'access_token': access_token, 'refresh_token': refresh_token, **profile_data}, status=status.HTTP_200_OK)
             is_production = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE']  # True in prod, False in dev
             # Set HttpOnly, Secure, SameSite cookies
             response.set_cookie(

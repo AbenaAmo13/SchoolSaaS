@@ -15,7 +15,7 @@ const AuthLayout = ({ children }) => {
     const navigate = useNavigate(); // Instantiate useNavigate
     let baseUrl = import.meta.env.VITE_APP_AUTHENTICATION_DJANGO_API_URL
     let endpoint = loginFormState ?'/login/' : '/school/'
-    const {authenticationAction} = useAuth();
+    const {authenticationAction, authenticationError} = useAuth();
 
     useEffect(()=>{
         generateModuleOptions()
@@ -70,16 +70,17 @@ const AuthLayout = ({ children }) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null); 
-    try {
-      let dataToSubmit =  loginFormState ? formData : createSchoolDataManipulation(formData)
-      await authenticationAction(dataToSubmit, endpoint)
-    } catch (err) {
-      let errors = err.response ? err.response.data.non_field_errors : err.message
-      let message = errors.join();
-      setError(message)
-    } finally {
-      setIsSubmitting(false);
+    
+    let dataToSubmit =  loginFormState ? formData : createSchoolDataManipulation(formData)
+    await authenticationAction(dataToSubmit, endpoint)
+    if(authenticationError){
+      setError(authenticationError)
     }
+
+    setIsSubmitting(false);
+
+
+    
   }
 
   return (

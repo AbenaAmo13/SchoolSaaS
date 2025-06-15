@@ -2,6 +2,7 @@ import { useContext, createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import axios from 'axios';
 import createAxiosInstance from '../utils/axiosInstance'
+import AxiosAPIError from './AxiosAPIError';  // adjust path if needed
 
 const AuthContext = createContext();
 
@@ -17,10 +18,12 @@ const AuthProvider = ({ children }) => {
   let baseUrl = import.meta.env.VITE_APP_AUTHENTICATION_DJANGO_API_URL
   const authAxios = createAxiosInstance(baseUrl); // Authentication base URL
 
-  function actionPostLoginOrSubmit(data) {
+  function actionPostLoginOrSubmit(data) {    
     setUser(data.user);
+    sessionStorage.setItem('user', JSON.stringify(data.user));
     if (data.school) {
       setSchool(data.school)
+      sessionStorage.setItem('school',  JSON.stringify(data.school));
     }
     setAccessToken(data['access_token'])
     setRefreshToken(data['refresh_token'])
@@ -29,25 +32,29 @@ const AuthProvider = ({ children }) => {
   }
 
   async function postRequest(dataToSubmit, endpoint) {
-    let fullEndpoint = `${baseUrl}${endpoint}`
-    const response = await authAxios.post(fullEndpoint, dataToSubmit);
-    let data = response.data
-    return data
+    const fullEndpoint = `${baseUrl}${endpoint}`;
+    const postResponse = await authAxios.post(fullEndpoint, dataToSubmit);
+    let responseData = postResponse.response.data
+    let errors = responseData.non_field_errors ? responseData.non_field_errors   : []
+    if(errors.length > 0){
+      throw new AxiosAPIError('API Axios Error thrown', errors);
+    }
+    return {
+      data: responseData,
+      status: postResponse.status
+    };
   }
 
   const authenticationAction = async (dataToSubmit, endpoint) => {
     //endpoint can be login, /api/login endpoint can be sign up /api/registration
     setAuthenticationError(null)
     try {
-      let data = await postRequest(dataToSubmit, endpoint)
-      if (data) {
-        actionPostLoginOrSubmit(data)
+      let response = await postRequest(dataToSubmit, endpoint)
+      if (response.status === 200) {
+        actionPostLoginOrSubmit(response.data)
       }
     } catch (err) {
-      let errors = err.response ? err.response.data.non_field_errors : err.message
-      let message = errors.join();
-      setAuthenticationError(message)
-      throw err;  // Rethrow error to handle it in the parent (if necessary)
+      setAuthenticationError(err.error_array)
     }
   };
 
@@ -57,18 +64,21 @@ const AuthProvider = ({ children }) => {
   // Function to refresh the access token
   const refreshAccessToken = async () => {
     try {
+      let user = sessionStorage.getItem("user")
       if(!accessToken){
         const response = await authAxios.post(`${baseUrl}/token/refresh/`)
         let responseData = response.data.data;
         let newAccessToken = responseData.access_token
         if (response.data.success) {
+          user = responseData.user
           setAccessToken(newAccessToken);
           setRefreshToken(responseData.refresh_token)
+          setUser(user)
           setIsAuthenticated(true)
         }
         authAxios.defaults.headers['Authorization'] = `Bearer ${newAccessToken}`; // Update the Axios default Authorization header
       }
-
+      setUser(user)
     } catch (err) {
       console.error("Token refresh failed:", err);
       logout();
