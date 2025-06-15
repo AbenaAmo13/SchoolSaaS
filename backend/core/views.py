@@ -188,5 +188,5 @@ class LoginView(APIView):
                     path='/'  # Ensures the cookie is available for all endpoints
             )
             return response
-     
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return api_response(False, 'Login Error', None, None, status.HTTP_400_BAD_REQUEST, 'Invalid User Credentials')

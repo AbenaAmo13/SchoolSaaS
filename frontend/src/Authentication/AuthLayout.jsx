@@ -73,12 +73,11 @@ const AuthLayout = ({ children }) => {
     
     let dataToSubmit =  loginFormState ? formData : createSchoolDataManipulation(formData)
     await authenticationAction(dataToSubmit, endpoint)
+    console.log(authenticationError)
     if(authenticationError){
       setError(authenticationError)
     }
     setIsSubmitting(false);
-
-
     
   }
 

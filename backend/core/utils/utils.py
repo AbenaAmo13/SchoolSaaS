@@ -61,6 +61,7 @@ def generate_unique_school_code_with_check():
         return unique_code
 
 
+
 def api_response(success=True, message="", cookies = None, data=None, status_code=200, errors=None):
     response_structure = {
         "success": success,
