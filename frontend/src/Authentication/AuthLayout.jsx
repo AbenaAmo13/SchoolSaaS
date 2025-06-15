@@ -76,7 +76,6 @@ const AuthLayout = ({ children }) => {
     if(authenticationError){
       setError(authenticationError)
     }
-
     setIsSubmitting(false);
 
 
