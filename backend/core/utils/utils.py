@@ -80,6 +80,9 @@ def api_response(success=True, message="", cookies = None, data=None, status_cod
                 res.set_cookie(name, value, **params)
     return res
 
+def format_api_errors(serialisers_errors):
+    
+
 
 def get_user_and_school_profile(user_id=None, user=None):
     if user_id and user is None: 

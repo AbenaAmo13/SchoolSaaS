@@ -60,6 +60,9 @@ class RegisterView(APIView):
 
 class CreateSchoolAndAdminView(APIView):
     permission_classes = [permissions.AllowAny]
+
+    
+
     def post(self, request):
         # Deserialize the incoming data
         serializer = CreateSchoolAndAdminSerializer(data=request.data)
@@ -82,6 +85,7 @@ class CreateSchoolAndAdminView(APIView):
             response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Strict')
             # Return both school and user in the response
             return  response
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
