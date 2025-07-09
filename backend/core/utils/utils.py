@@ -80,9 +80,13 @@ def api_response(success=True, message="", cookies = None, data=None, status_cod
                 res.set_cookie(name, value, **params)
     return res
 
-def format_api_errors(serialisers_errors):
-    
-
+def generic_form_error_return_response(specific_errors):
+    response_structure = {
+        "success": False,
+        "errors": "An error occured with your request, ensure all data inputted in the form is correct ",
+        "specific_errors": specific_errors
+    }
+    return response_structure
 
 def get_user_and_school_profile(user_id=None, user=None):
     if user_id and user is None: 

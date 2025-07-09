@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { redirect } from "react-router";
 import  '../Authentication/style/registration.css';
+import '../App.css'
+
 
 const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeCredentials, customHandleSubmit}) => {
  

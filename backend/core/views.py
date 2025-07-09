@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from core.utils.utils import add_license_key, generate_unique_school_code_with_check, api_response, get_user_and_school_profile
+from core.utils.utils import add_license_key, generate_unique_school_code_with_check, api_response, get_user_and_school_profile, generic_form_error_return_response
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
@@ -85,8 +85,9 @@ class CreateSchoolAndAdminView(APIView):
             response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Strict')
             # Return both school and user in the response
             return  response
+        error_response = generic_form_error_return_response(serializer.errors)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
 
 
 

@@ -52,10 +52,13 @@ const AuthProvider = ({ children }) => {
     setAuthenticationError(null)
     try {
       let response = await postRequest(dataToSubmit, endpoint)
-      if (response.status === 200) {
-        actionPostLoginOrSubmit(response.data)
+      console.log(response.status)
+      if (response.status === 200 || response.status === 201) {
+        actionPostLoginOrSubmit(response.data);
       }
+    
     } catch (err) {
+      console.log(err)
       setAuthenticationError(err.error_array)
     }
   };
