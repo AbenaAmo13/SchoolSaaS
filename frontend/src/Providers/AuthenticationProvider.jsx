@@ -29,6 +29,7 @@ const AuthProvider = ({ children }) => {
     setRefreshToken(data['refresh_token'])
     setIsAuthenticated(true)
     navigate('/homepage');
+    return { success: true};
   }
 
 
@@ -37,6 +38,8 @@ const AuthProvider = ({ children }) => {
     const postResponse = await authAxios.post(fullEndpoint, dataToSubmit);
     console.log(postResponse)
     let responseData = postResponse.response.data
+    console.log(postResponse.response.status)
+    console.log(postResponse.status)
     let errors = responseData.errors ? responseData.errors   : []
     if(errors.length > 0){
       throw new AxiosAPIError('API Axios Error thrown', errors);
