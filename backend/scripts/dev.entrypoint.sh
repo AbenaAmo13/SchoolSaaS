@@ -17,7 +17,7 @@ if [ "$DATABASE" = "postgres" ]; then
     python manage.py collectstatic --noinput
 
     echo "Create super user"
-    python manage.py createsuperuser --noinput
+    python manage.py create_super_user --no_input
 
     if [ "$DEBUG" = "True" ]; then
         echo "Dev"

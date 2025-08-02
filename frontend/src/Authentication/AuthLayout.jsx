@@ -1,50 +1,67 @@
 import React, { useEffect } from 'react';
-import { data, useNavigate } from "react-router";
-import  './style/registration.css';
-import { loginFormFields, createSchoolFormFields} from './utils/constant';
+import { useNavigate } from "react-router";
+import './style/registration.css';
+import { loginFormFields, createSchoolFormFields } from './utils/constant';
 import { useState } from 'react';
 import Form from '../Components/Form';
-import axios from "axios";
 import { useAuth } from '../Providers/AuthenticationProvider';
 import createAxiosInstance from '../utils/axiosInstance'
 
 
 const AuthLayout = ({ children }) => {
-    const [loginFormState, setLginFormState] = useState(true) 
-    const [error, setError]= useState(null)
-    const navigate = useNavigate(); // Instantiate useNavigate
-    let baseUrl = import.meta.env.VITE_APP_AUTHENTICATION_DJANGO_API_URL
-    let endpoint = loginFormState ?'/login/' : '/school/'
-    const {authenticationAction, authenticationError} = useAuth();
+  const [loginFormState, setLginFormState] = useState(true)
+  const [error, setError] = useState(null)
+  const navigate = useNavigate(); // Instantiate useNavigate
+  let baseUrl = import.meta.env.VITE_APP_AUTHENTICATION_DJANGO_API_URL
+  let endpoint = loginFormState ? '/login/' : '/school/'
+  const { authenticationAction, authenticationError } = useAuth();
+  const [isLoadingModules, setIsLoadingModules] = useState(true);
 
-    useEffect(()=>{
-        generateModuleOptions()
 
-    },[])
+  useEffect(() => {
+    generateModuleOptions()
 
-    function toggleFormState(){
-        setLginFormState(prev =>!prev);
+  }, [])
+
+   // Watch for authentication error changes
+   useEffect(() => {
+    alert('this is being done')
+    if (authenticationError) {
+      setError(authenticationError);
     }
+  }, [authenticationError]);
 
-    async function generateModuleOptions(){
-      const getModules =  createAxiosInstance(baseUrl); // Authentication base URL
-      let fullEndpoint = `${baseUrl}/register/`
+  function toggleFormState() {
+    setLginFormState(prev => !prev);
+  }
+
+  async function generateModuleOptions() {
+    try {
+      const getModules = createAxiosInstance(baseUrl);
+      let fullEndpoint = `${baseUrl}/register/`;
       const response = await getModules.get(fullEndpoint);
-      const data = response.data
-      let modifiedModuleOptions = data.map(module => {
-          return { 
-            value: module.id, 
-            label: module.name
-          };
-        });
-      let moduleIndex = createSchoolFormFields.findIndex(field=> field.name=="module")
-      if(moduleIndex!==1){
-          createSchoolFormFields[moduleIndex].options = modifiedModuleOptions
+      const data = response.data;
+
+      let modifiedModuleOptions = data.map(module => ({
+        value: module.id,
+        label: module.name
+      }));
+
+      let moduleIndex = createSchoolFormFields.findIndex(field => field.name === "module");
+      if (moduleIndex !== -1) {
+        createSchoolFormFields[moduleIndex].options = modifiedModuleOptions;
       }
+    } catch (err) {
+      console.error("Error fetching module options", err);
+      setError("Failed to load module options.");
+    } finally {
+      setIsLoadingModules(false);
     }
+  }
 
 
-    // Chanhges the data to be in the form of the api
+
+  // Chanhges the data to be in the form of the api
   const createSchoolDataManipulation = (formData) => {
     return {
       school: {
@@ -65,51 +82,54 @@ const AuthLayout = ({ children }) => {
     };
   };
 
-  
-  async function customHandleSubmit(e, formData, setIsSubmitting, setError){
+
+  async function customHandleSubmit(e, formData, setIsSubmitting, setError) {
     e.preventDefault();
     setIsSubmitting(true);
-    setError(null); 
-    
-    let dataToSubmit =  loginFormState ? formData : createSchoolDataManipulation(formData)
+    setError(null);
+
+    let dataToSubmit = loginFormState ? formData : createSchoolDataManipulation(formData)
     await authenticationAction(dataToSubmit, endpoint)
-    if(authenticationError){
+    console.log(authenticationError)
+    if (authenticationError) {
       setError(authenticationError)
     }
     setIsSubmitting(false);
 
-
-    
   }
 
   return (
     <div className='auth-layout'>
       <div className='container'>
-          <div className="bg-image"></div>
-          <div className='content'>
-              <div className='btn-containers align-center min-gap'>
-                  <i className={`${loginFormState? 'fas fa-school' : 'fas fa-sign-in-alt'} `}></i>
-                  <button className='create-btn' onClick={toggleFormState}>
-                      {loginFormState ? 'Create School' : 'Login'}
-                  </button>
+        <div className="bg-image"></div>
+        <div className='content'>
+          <div className='btn-containers align-center min-gap'>
+            <i className={`${loginFormState ? 'fas fa-school' : 'fas fa-sign-in-alt'} `}></i>
+            <button className='create-btn' onClick={toggleFormState}>
+              {loginFormState ? 'Create School' : 'Login'}
+            </button>
 
-              </div>
-              <div>
-                  <h1>Manage It</h1>
-                  <p className='descriptive-text'> 
-                  Welcome to Manage It, an all-in-one platform designed to streamline your school's administrative tasks. 
-                  From efficient online reporting and record management to seamless billing and communication, our system simplifies everyday operations, allowing you to focus on what truly matters—education.
-                  Log in or register to get started today!
-                  </p>
-              </div>
-              <Form 
-                  fields={loginFormState ? loginFormFields: createSchoolFormFields} 
-                  customHandleSubmit={customHandleSubmit}
-              />
           </div>
-          <main>
+          <div>
+            <h1>Manage It</h1>
+            <p className='descriptive-text'>
+              Welcome to Manage It, an all-in-one platform designed to streamline your school's administrative tasks.
+              From efficient online reporting and record management to seamless billing and communication, our system simplifies everyday operations, allowing you to focus on what truly matters—education.
+              Log in or register to get started today!
+            </p>
+          </div>
+          {isLoadingModules ? (
+            <p className="loading-text">Loading module options...</p>
+          ) : (
+            <Form
+              fields={loginFormState ? loginFormFields : createSchoolFormFields}
+              customHandleSubmit={customHandleSubmit}
+            />
+          )}
+        </div>
+        <main>
           {children} {/* This is where the specific pages like Login or Register will be rendered */}
-          </main>
+        </main>
 
       </div>
     </div>

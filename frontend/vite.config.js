@@ -16,5 +16,10 @@ export default defineConfig(({ mode }) => {
         usePolling:true,
       },
     },
+    test: {
+      environment: 'jsdom',
+      globals: true,
+      setupFiles: './src/tests/setupTests.ts',
+    },
   }
 })

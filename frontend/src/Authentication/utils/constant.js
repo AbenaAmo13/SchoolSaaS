@@ -26,8 +26,9 @@ export const createSchoolFormFields=[
     {
         name: 'email',
         label: 'Email',
-        type: 'text',
+        type: 'email',
         icon: 'envelope',  // Font Awesome envelope icon
+        placeholder: 'Enter your email here',
         required: true,
     },
     {

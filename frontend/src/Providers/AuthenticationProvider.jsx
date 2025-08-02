@@ -29,13 +29,18 @@ const AuthProvider = ({ children }) => {
     setRefreshToken(data['refresh_token'])
     setIsAuthenticated(true)
     navigate('/homepage');
+    return { success: true};
   }
+
 
   async function postRequest(dataToSubmit, endpoint) {
     const fullEndpoint = `${baseUrl}${endpoint}`;
     const postResponse = await authAxios.post(fullEndpoint, dataToSubmit);
+    console.log(postResponse)
     let responseData = postResponse.response.data
-    let errors = responseData.non_field_errors ? responseData.non_field_errors   : []
+    console.log(postResponse.response.status)
+    console.log(postResponse.status)
+    let errors = responseData.errors ? responseData.errors   : []
     if(errors.length > 0){
       throw new AxiosAPIError('API Axios Error thrown', errors);
     }
@@ -50,10 +55,13 @@ const AuthProvider = ({ children }) => {
     setAuthenticationError(null)
     try {
       let response = await postRequest(dataToSubmit, endpoint)
-      if (response.status === 200) {
-        actionPostLoginOrSubmit(response.data)
+      console.log(response.status)
+      if (response.status === 200 || response.status === 201) {
+        actionPostLoginOrSubmit(response.data);
       }
+    
     } catch (err) {
+      console.log(err)
       setAuthenticationError(err.error_array)
     }
   };
