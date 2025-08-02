@@ -7,7 +7,7 @@ import '../App.css'
 
 const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeCredentials, customHandleSubmit}) => {
  
-  const [formData, setFormData] = useState(generateInitialState || '');
+  const [formData, setFormData] = useState(generateInitialState() || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -66,15 +66,15 @@ const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeC
     const { name, type, label, icon, required, options } = field;
 
     return type === 'select' ? (
-      <select name={name} value={formData[name]} onChange={handleChange} required={required}>
+      <select id={name} name={name} value={formData[name]} onChange={handleChange} required={required}>
         {options.map(option => (
           <option key={option.value} value={option.value}>{option.label}</option>
         ))}
       </select>
     ) : type === 'checkbox' ? (
-      <input type="checkbox" name={name}  onChange={handleChange} required={required} />
+      <input id={name} type="checkbox" name={name} onChange={handleChange} required={required} />
     ) : (
-      <input type={type || 'text'} name={name} value={formData[name]} onChange={handleChange} required={required} placeholder={field.placeholder || ''} />
+      <input id={name} type={type || 'text'} name={name} value={formData[name]} onChange={handleChange} required={required} placeholder={field.placeholder || ''} />
     );
   };
 
