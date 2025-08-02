@@ -44,7 +44,7 @@ const mockSchoolFormFields = [
   ];
 
 describe('Form Component Tests', () => {
-  test('renders the login form', () => {
+  it('renders the login form', () => {
     render(<Form fields={mockSchoolFormFields} customHandleSubmit={vi.fn()} />);
     const emailInput = screen.getByLabelText(/email/i);
     const passwordInput = screen.getByLabelText(/password/i);
@@ -53,5 +53,4 @@ describe('Form Component Tests', () => {
     expect(passwordInput).toBeInTheDocument();
     expect(submitButton).toBeInTheDocument();
   });
-    
-})
+});

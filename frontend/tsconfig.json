@@ -5,4 +5,6 @@
         "types": ["vite/client"],
         "isolatedModules": true,
     },
+     // also include the file we just created:
+  "include": ["src", "./src/tests/setupTests.ts"]
  }
