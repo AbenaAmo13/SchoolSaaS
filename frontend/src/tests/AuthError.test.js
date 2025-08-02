@@ -43,26 +43,15 @@ const mockSchoolFormFields = [
     }
   ];
 
-describe('Form Component Error Handling', () => {
-    it('displays error message when school creation fails', async () => {
-        // Mock customHandleSubmit that simulates an error
-    const mockCustomHandleSubmit = vi.fn().mockImplementation(async (e, formData, setIsSubmitting, setError) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 100));
-        // Simulate error from backend
-        setError('School with this email already exists');
-        setIsSubmitting(false);
-      });
-  
-      render(
-        <Form 
-          fields={mockSchoolFormFields}
-          customHandleSubmit={mockCustomHandleSubmit}
-        />
-      );
-
-    })
+describe('Form Component Tests', () => {
+  test('renders the login form', () => {
+    render(<Form fields={mockSchoolFormFields} customHandleSubmit={vi.fn()} />);
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+    const submitButton = screen.getByText(/submit/i);
+    expect(emailInput).toBeInTheDocument();
+    expect(passwordInput).toBeInTheDocument();
+    expect(submitButton).toBeInTheDocument();
+  });
     
 })
