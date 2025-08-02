@@ -14,8 +14,7 @@ class RegisterSchoolTest(APITestCase):
         ]
         ApplicationModules.objects.bulk_create(modules)
         # Use bulk_create to add all employees at once
-        self.modules= ApplicationModules.objects.values_list('id', flat=True)[:2]
-            # Create the first school
+        self.modules= ApplicationModules.objects.values_list('id', flat=True)[:2]            # Create the first school
         self.school_data = {
             "school": {
                 "name": "ENAS Hybrid School",
@@ -33,12 +32,12 @@ class RegisterSchoolTest(APITestCase):
                 "is_staff": True
             }
         }
+        self.client = self.client_class(HTTP_X_FORWARDED_PROTO='https')
 
 
     
     def test_registry_school(self):
         url = reverse('register-school')
-        self.client = self.client_class(HTTP_X_FORWARDED_PROTO='https')
         response = self.client.post(url, self.school_data, format="json")
         response_data = response.json()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -56,8 +55,6 @@ class RegisterSchoolTest(APITestCase):
         school = response_data['school']
     
     def test_duplicate_entries(self):
-        self.client = self.client_class(HTTP_X_FORWARDED_PROTO='https')
-
         # First registration - should succeed
         first_response = self.client.post(reverse('register-school'), self.school_data, format='json')
         self.assertEqual(first_response.status_code, status.HTTP_201_CREATED)
@@ -65,6 +62,42 @@ class RegisterSchoolTest(APITestCase):
         # Second registration - should fail due to duplication
         duplicate_response = self.client.post(reverse('register-school'), self.school_data, format='json')
         self.assertEqual(duplicate_response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_creating_school_with_same_email(self):
+        # First registration - should succeed
+        first_response = self.client.post(reverse('register-school'), self.school_data, format='json')
+        self.assertEqual(first_response.status_code, status.HTTP_201_CREATED)
+
+        # Create second school data with same email but different name
+        second_school_data = self.school_data.copy()
+        second_school_data['school'] = self.school_data['school'].copy()
+        second_school_data['school']['name'] = 'International Community School'
+        second_school_data['school']['school_acronym'] = 'ICS'
+        second_school_data['user'] = self.school_data['user'].copy()
+        second_school_data['user']['username'] = 'icsadmin'
+        
+        # Second registration with same email should fail due to unique constraint
+        second_response = self.client.post(reverse('register-school'), second_school_data, format='json')
+        self.assertEqual(second_response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+        # Verify the error message indicates the constraint violation
+        response_data = second_response.json()
+        self.assertIn('school', response_data)
+        self.assertIn('email', response_data['school'])
+        
+        # Test with completely different email - should succeed
+        third_school_data = self.school_data.copy()
+        third_school_data['school'] = self.school_data['school'].copy()
+        third_school_data['school']['name'] = 'Another School'
+        third_school_data['school']['email'] = 'another@school.com'
+        third_school_data['school']['school_acronym'] = 'AS'
+        third_school_data['user'] = self.school_data['user'].copy()
+        third_school_data['user']['username'] = 'anotheradmin'
+        third_school_data['user']['email'] = 'another@school.com'
+        
+        third_response = self.client.post(reverse('register-school'), third_school_data, format='json')
+        self.assertEqual(third_response.status_code, status.HTTP_201_CREATED)
+
 
 
 
