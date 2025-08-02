@@ -50,11 +50,6 @@ describe('Basic Test', () => {
 });
 
 describe('Form Component Test', () => {
-  it('should test form functionality', () => {
-    // Simple test without JSX for now
-    expect(1 + 1).toBe(2);
-  });
-
   it('should render form with minimal props', () => {
     const mockFields = [
       {
