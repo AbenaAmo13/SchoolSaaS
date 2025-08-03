@@ -62,7 +62,6 @@ class CreateSchoolAndAdminView(APIView):
     permission_classes = [permissions.AllowAny]
 
     
-
     def post(self, request):
         # Deserialize the incoming data
         serializer = CreateSchoolAndAdminSerializer(data=request.data)
@@ -85,6 +84,8 @@ class CreateSchoolAndAdminView(APIView):
             response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Strict')
             # Return both school and user in the response
             return  response
+         #TODO: Remove serializer.errors print
+        print(serializer.errors)
         error_response = generic_form_error_return_response(serializer.errors)
         
         return Response(error_response, status=status.HTTP_400_BAD_REQUEST)

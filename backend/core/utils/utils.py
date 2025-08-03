@@ -84,7 +84,6 @@ def generic_form_error_return_response(specific_errors):
     response_structure = {
         "success": False,
         "errors": "An error occured with your request, ensure all data inputted in the form is correct",
-        "specific_errors": specific_errors
     }
     return response_structure
 

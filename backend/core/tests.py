@@ -63,18 +63,17 @@ class RegisterSchoolTest(APITestCase):
         duplicate_response = self.client.post(reverse('register-school'), self.school_data, format='json')
         self.assertEqual(duplicate_response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_creating_school_with_same_email(self):
+    def test_creating_school_with_same_email_but_different_name(self):
         # First registration - should succeed
         first_response = self.client.post(reverse('register-school'), self.school_data, format='json')
         self.assertEqual(first_response.status_code, status.HTTP_201_CREATED)
 
         # Create second school data with same email but different name
         second_school_data = self.school_data.copy()
-        second_school_data['school'] = self.school_data['school'].copy()
         second_school_data['school']['name'] = 'International Community School'
         second_school_data['school']['school_acronym'] = 'ICS'
-        second_school_data['user'] = self.school_data['user'].copy()
         second_school_data['user']['username'] = 'icsadmin'
+        print(second_school_data)
         
         # Second registration with same email should fail due to unique constraint
         second_response = self.client.post(reverse('register-school'), second_school_data, format='json')
@@ -82,8 +81,8 @@ class RegisterSchoolTest(APITestCase):
         
         # Verify the error message indicates the constraint violation
         response_data = second_response.json()
-        self.assertIn('school', response_data)
-        self.assertIn('email', response_data['school'])
+        self.assertEqual(response_data['success'], False)
+        self.assertIn(response_data['errors'], 'An error occured with your request, ensure all data inputted in the form is correct')
         
         # Test with completely different email - should succeed
         third_school_data = self.school_data.copy()
