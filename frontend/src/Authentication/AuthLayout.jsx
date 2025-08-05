@@ -26,7 +26,6 @@ const AuthLayout = ({ children }) => {
    // Watch for authentication error changes
    useEffect(() => {
     if (authenticationError) {
-      console.log('authenticationError is:',authenticationError)
       setError(authenticationError);
     }
   }, [authenticationError]);
