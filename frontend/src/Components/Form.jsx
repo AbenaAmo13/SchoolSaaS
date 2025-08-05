@@ -5,11 +5,10 @@ import  '../Authentication/style/registration.css';
 import '../App.css'
 
 
-const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeCredentials, customHandleSubmit}) => {
+const Form = ({ endpoint, fields, onSuccess, onError, dataManipulation, includeCredentials, customHandleSubmit, error, setError}) => {
  
   const [formData, setFormData] = useState(generateInitialState() || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
 
   function generateInitialState() {
     return fields.reduce((acc, field) => ({

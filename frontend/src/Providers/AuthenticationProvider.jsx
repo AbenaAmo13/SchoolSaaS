@@ -61,8 +61,8 @@ const AuthProvider = ({ children }) => {
       }
     
     } catch (err) {
-      console.log(err)
-      setAuthenticationError(err.error_array)
+      console.log(err.error_messages)
+      setAuthenticationError(err.error_messages)
     }
   };
 
