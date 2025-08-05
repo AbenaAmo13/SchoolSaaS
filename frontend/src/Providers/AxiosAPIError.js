@@ -1,5 +1,5 @@
 class AxiosAPIError extends Error {  
-    constructor (message, error_array) {
+    constructor (message, error_messages) {
       super(message)
   
       this.name = this.constructor.name
@@ -8,7 +8,7 @@ class AxiosAPIError extends Error {
       Error.captureStackTrace(this, this.constructor);
   
       // you may also assign additional properties to your error
-      this.error_array = error_array
+      this.error_messages = error_messages
     }
 }
 

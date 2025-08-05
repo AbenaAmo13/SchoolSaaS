@@ -25,7 +25,6 @@ const AuthLayout = ({ children }) => {
 
    // Watch for authentication error changes
    useEffect(() => {
-    alert('this is being done')
     if (authenticationError) {
       setError(authenticationError);
     }
@@ -87,7 +86,6 @@ const AuthLayout = ({ children }) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
-
     let dataToSubmit = loginFormState ? formData : createSchoolDataManipulation(formData)
     await authenticationAction(dataToSubmit, endpoint)    
     setIsSubmitting(false);
@@ -120,6 +118,8 @@ const AuthLayout = ({ children }) => {
             <Form
               fields={loginFormState ? loginFormFields : createSchoolFormFields}
               customHandleSubmit={customHandleSubmit}
+              error={error}
+              setError={setError}
             />
           )}
         </div>

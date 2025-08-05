@@ -36,9 +36,8 @@ const AuthProvider = ({ children }) => {
   async function postRequest(dataToSubmit, endpoint) {
     const fullEndpoint = `${baseUrl}${endpoint}`;
     const postResponse = await authAxios.post(fullEndpoint, dataToSubmit);
-    let responseData = postResponse['data']
-    console.log(postResponse)
-    let errors = responseData.errors ? responseData.errors   : []
+    let responseData = postResponse['data'] || postResponse['response']['data']
+    let errors = responseData['errors'] ? responseData['errors']   : []
     if(errors.length > 0){
       throw new AxiosAPIError('API Axios Error thrown', errors);
     }
@@ -53,14 +52,12 @@ const AuthProvider = ({ children }) => {
     setAuthenticationError(null)
     try {
       let response = await postRequest(dataToSubmit, endpoint)
-      console.log(response.status)
       if (response.status === 200 || response.status === 201) {
         actionPostLoginOrSubmit(response.data);
       }
     
     } catch (err) {
-      console.log(err)
-      setAuthenticationError(err.error_array)
+      setAuthenticationError(err.error_messages)
     }
   };
 
