@@ -1,16 +1,25 @@
-import React from 'react';
+import React,{useState, useEffect} from 'react';
 import { Outlet } from 'react-router';
 import {
   PanelLeftOpen,
   LayoutGrid,
   Home,
+  LogOut,
   Search,
   Bell,
   HelpCircle,
   Settings
 } from 'lucide-react';
 import './style/nav.css'; 
+import { useAuth } from '../Providers/AuthenticationProvider';
 const ApplicationNavigation = () => {
+  const {user, logout} = useAuth()
+  const handleLogout = () => {
+    logout();
+  };
+
+
+
   return (
     <>
       <nav className="nav-container">
@@ -35,7 +44,15 @@ const ApplicationNavigation = () => {
           <button className="icon-button"><Bell size={20} /></button>
           <button className="icon-button"><HelpCircle size={20} /></button>
           <button className="icon-button"><Settings size={20} /></button>
-          <div className="avatar">AA</div>
+          <div className="avatar">
+            {user.username.slice(0, 2).toUpperCase()}
+          </div>
+          <div className="dropdown-menu">
+            <div className="dropdown-item" onClick={handleLogout}>
+              <LogOut size={16} />
+              <span>Logout</span>
+            </div>
+          </div>
         </div>
       </nav>
 

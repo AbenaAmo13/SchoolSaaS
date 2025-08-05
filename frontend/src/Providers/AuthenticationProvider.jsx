@@ -37,6 +37,7 @@ const AuthProvider = ({ children }) => {
     const fullEndpoint = `${baseUrl}${endpoint}`;
     const postResponse = await authAxios.post(fullEndpoint, dataToSubmit);
     let responseData = postResponse['data']
+    console.log(postResponse)
     let errors = responseData.errors ? responseData.errors   : []
     if(errors.length > 0){
       throw new AxiosAPIError('API Axios Error thrown', errors);
