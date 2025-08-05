@@ -1,4 +1,4 @@
-import { useContext, createContext, useState, useEffect } from "react";
+import { useContext, createContext, useState } from "react";
 import { useNavigate } from "react-router";
 import axios from 'axios';
 import createAxiosInstance from '../utils/axiosInstance'
@@ -36,10 +36,7 @@ const AuthProvider = ({ children }) => {
   async function postRequest(dataToSubmit, endpoint) {
     const fullEndpoint = `${baseUrl}${endpoint}`;
     const postResponse = await authAxios.post(fullEndpoint, dataToSubmit);
-    console.log(postResponse)
-    let responseData = postResponse.response.data
-    console.log(postResponse.response.status)
-    console.log(postResponse.status)
+    let responseData = postResponse['data']
     let errors = responseData.errors ? responseData.errors   : []
     if(errors.length > 0){
       throw new AxiosAPIError('API Axios Error thrown', errors);
