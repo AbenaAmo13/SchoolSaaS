@@ -1,8 +1,10 @@
 from django.test import TestCase
 from rest_framework.test import APITestCase
-from core.models import ApplicationModules
+from core.models import ApplicationModules, User, School
+from unittest.mock import patch
 from django.urls import reverse
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 import json
 
 # Create your tests here.
@@ -97,13 +99,52 @@ class RegisterSchoolTest(APITestCase):
         third_response = self.client.post(reverse('register-school'), third_school_data, format='json')
         self.assertEqual(third_response.status_code, status.HTTP_201_CREATED)
 
+class LoginTest(APITestCase):
+    def setUp(self):
+        self.client = self.client_class(HTTP_X_FORWARDED_PROTO='https')
+        self.school = School.objects.create(
+            name='testschool', 
+            email='testschool@example.com',
+            contact_number='1234567890',
+            school_acronym='TS'
+        )
+        self.user = User.objects.create_user(
+            username='testuser', 
+            password='testpass',
+            email='testuser@example.com',
+            role='admin',
+            school=self.school
+        )
+        self.client.login(username='testuser', password='testpass')
+        self.user_data = {
+            'username': 'testuser',
+            'password': 'testpass',
+            'email': 'testuser@example.com',
+            'role': 'admin'
+        }
 
-
-
-
-
-
-
+    @patch('core.utils.utils.get_user_and_school_profile')
+    def test_login_with_valid_credentials(self, mock_get_user_and_school_profile):
+        mock_get_user_and_school_profile.return_value = {
+            'user': {
+                'username': 'testuser',
+                'email': 'testuser@example.com',
+                'role': 'admin'
+            },
+            'school': {
+                'name': 'testschool',
+                'email': 'testschool@example.com'
+            }
+        }
+        
+        url = reverse('login')
+        response = self.client.post(url, self.user_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('access_token' in response.json())
+        self.assertTrue('refresh_token' in response.json())
     
-
-
+    def test_login_with_invalid_credentials(self):
+        url = reverse('login')
+        response = self.client.post(url, {'username': 'testuser', 'password': 'wrongpass'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn('Invalid User Credentials', response.json()['errors'])

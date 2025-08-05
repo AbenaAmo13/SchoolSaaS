@@ -3,7 +3,7 @@ import random
 import string
 from core.models import School
 from rest_framework.response import Response
-from django.contrib.auth.models import User
+from core.models import User
 from core.serializers import UserSerializer, SchoolSerializer
 
 
@@ -91,6 +91,14 @@ def get_user_and_school_profile(user_id=None, user=None):
     if user_id and user is None: 
         user = User.objects.get(id=user_id)
     user_information = UserSerializer(user).data
-    school = School.objects.get(id=user_information.get('school'))
-    school_data = SchoolSerializer(school).data
+    school_data = None
+    # Check if user has a school associated
+    if user_information.get('school'):
+        try:
+            school = School.objects.get(id=user_information.get('school'))
+            school_data = SchoolSerializer(school).data
+        except School.DoesNotExist:
+            # Handle case where school doesn't exist
+            school_data = None
+    
     return {'user': user_information, 'school': school_data}

@@ -172,6 +172,11 @@ SIMPLE_JWT = {
     'AUTH_COOKIE_HTTP_ONLY': True,
     'AUTH_COOKIE_SECURE': IS_PRODUCTION,  # ✅ Only secure in production
     'AUTH_COOKIE_SAMESITE': 'Lax' if not IS_PRODUCTION else 'None',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'JTI_CLAIM': 'jti',
+    'TOKEN_USER_CLASS': 'core.User',
 }
 
 CORS_ALLOWED_ORIGINS = [
