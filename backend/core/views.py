@@ -17,6 +17,7 @@ from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 from rest_framework import generics, permissions
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, SchoolSerializer, CreateSchoolAndAdminSerializer, ApplicationModulesSerializer
+import uuid
 
 
 class CookiesJWTAuthentication(JWTAuthentication):
@@ -62,7 +63,6 @@ class CreateSchoolAndAdminView(APIView):
     permission_classes = [permissions.AllowAny]
 
     
-
     def post(self, request):
         # Deserialize the incoming data
         serializer = CreateSchoolAndAdminSerializer(data=request.data)
@@ -85,6 +85,8 @@ class CreateSchoolAndAdminView(APIView):
             response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Strict')
             # Return both school and user in the response
             return  response
+         #TODO: Remove serializer.errors print
+        print(serializer.errors)
         error_response = generic_form_error_return_response(serializer.errors)
         
         return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
@@ -111,8 +113,15 @@ class CustomTokenRefreshView(TokenRefreshView):
             access_token = serializer.validated_data['access']
             new_refresh_token = serializer.validated_data['refresh']
             access_token_obj = AccessToken(access_token)
-            user_id=access_token_obj['user_id']
-            profile_data = get_user_and_school_profile(user_id)
+            user_id = access_token_obj['user_id']
+            
+            # Convert string user_id back to UUID if needed
+            try:
+                user_uuid = uuid.UUID(user_id) if isinstance(user_id, str) else user_id
+                profile_data = get_user_and_school_profile(user_id=user_uuid)
+            except (ValueError, TypeError):
+                # If user_id is not a valid UUID, try to get it as is
+                profile_data = get_user_and_school_profile(user_id=user_id)
            
             data = {'access_token': access_token, 'refresh_token':new_refresh_token,'refreshed': True, **profile_data}  
             cookies = {
@@ -169,7 +178,7 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data
             user_information = UserSerializer(user).data
-            profile_data = get_user_and_school_profile('', user)
+            profile_data = get_user_and_school_profile(user=user)
             refresh = RefreshToken.for_user(user)
             refresh_token =  str(refresh)
             access_token = str(refresh.access_token)
@@ -194,4 +203,4 @@ class LoginView(APIView):
             )
             return response
 
-        return api_response(False, 'Login Error', None, None, status.HTTP_400_BAD_REQUEST, 'Invalid User Credentials')
+        return api_response(False, 'Login Error', None, None, status.HTTP_401_UNAUTHORIZED, 'Invalid User Credentials')

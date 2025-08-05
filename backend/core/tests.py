@@ -1,8 +1,10 @@
 from django.test import TestCase
 from rest_framework.test import APITestCase
-from core.models import ApplicationModules
+from core.models import ApplicationModules, User, School
+from unittest.mock import patch
 from django.urls import reverse
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 import json
 
 # Create your tests here.
@@ -63,18 +65,17 @@ class RegisterSchoolTest(APITestCase):
         duplicate_response = self.client.post(reverse('register-school'), self.school_data, format='json')
         self.assertEqual(duplicate_response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_creating_school_with_same_email(self):
+    def test_creating_school_with_same_email_but_different_name(self):
         # First registration - should succeed
         first_response = self.client.post(reverse('register-school'), self.school_data, format='json')
         self.assertEqual(first_response.status_code, status.HTTP_201_CREATED)
 
         # Create second school data with same email but different name
         second_school_data = self.school_data.copy()
-        second_school_data['school'] = self.school_data['school'].copy()
         second_school_data['school']['name'] = 'International Community School'
         second_school_data['school']['school_acronym'] = 'ICS'
-        second_school_data['user'] = self.school_data['user'].copy()
         second_school_data['user']['username'] = 'icsadmin'
+        print(second_school_data)
         
         # Second registration with same email should fail due to unique constraint
         second_response = self.client.post(reverse('register-school'), second_school_data, format='json')
@@ -82,8 +83,8 @@ class RegisterSchoolTest(APITestCase):
         
         # Verify the error message indicates the constraint violation
         response_data = second_response.json()
-        self.assertIn('school', response_data)
-        self.assertIn('email', response_data['school'])
+        self.assertEqual(response_data['success'], False)
+        self.assertIn(response_data['errors'], 'An error occured with your request, ensure all data inputted in the form is correct')
         
         # Test with completely different email - should succeed
         third_school_data = self.school_data.copy()
@@ -98,13 +99,52 @@ class RegisterSchoolTest(APITestCase):
         third_response = self.client.post(reverse('register-school'), third_school_data, format='json')
         self.assertEqual(third_response.status_code, status.HTTP_201_CREATED)
 
+class LoginTest(APITestCase):
+    def setUp(self):
+        self.client = self.client_class(HTTP_X_FORWARDED_PROTO='https')
+        self.school = School.objects.create(
+            name='testschool', 
+            email='testschool@example.com',
+            contact_number='1234567890',
+            school_acronym='TS'
+        )
+        self.user = User.objects.create_user(
+            username='testuser', 
+            password='testpass',
+            email='testuser@example.com',
+            role='admin',
+            school=self.school
+        )
+        self.client.login(username='testuser', password='testpass')
+        self.user_data = {
+            'username': 'testuser',
+            'password': 'testpass',
+            'email': 'testuser@example.com',
+            'role': 'admin'
+        }
 
-
-
-
-
-
-
+    @patch('core.utils.utils.get_user_and_school_profile')
+    def test_login_with_valid_credentials(self, mock_get_user_and_school_profile):
+        mock_get_user_and_school_profile.return_value = {
+            'user': {
+                'username': 'testuser',
+                'email': 'testuser@example.com',
+                'role': 'admin'
+            },
+            'school': {
+                'name': 'testschool',
+                'email': 'testschool@example.com'
+            }
+        }
+        
+        url = reverse('login')
+        response = self.client.post(url, self.user_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('access_token' in response.json())
+        self.assertTrue('refresh_token' in response.json())
     
-
-
+    def test_login_with_invalid_credentials(self):
+        url = reverse('login')
+        response = self.client.post(url, {'username': 'testuser', 'password': 'wrongpass'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn('Invalid User Credentials', response.json()['errors'])

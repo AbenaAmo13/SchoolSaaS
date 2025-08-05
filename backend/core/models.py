@@ -15,7 +15,7 @@ class School(models.Model):
     modules = models.ManyToManyField(ApplicationModules,related_name='school')
     name = models.CharField(max_length=100)
     contact_number = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
+    email = models.CharField(max_length=100, unique=True)
     cambridge_certified = models.BooleanField(default=True)
     license_activation_date = models.DateTimeField(auto_now_add=True)
     license_key = models.CharField(default = 'ALL_ALLOWED', max_length=100)
