@@ -3,9 +3,10 @@ import { useAuth } from "../Providers/AuthenticationProvider";
 
 export default function Homepage(){
     const {user, accessToken, refreshToken, school} = useAuth()
+    
     return(
         <div>
-            <h3>Hello {user.username} </h3>
+            <h3>Hello {user['username']} </h3>
 
         </div>
     )

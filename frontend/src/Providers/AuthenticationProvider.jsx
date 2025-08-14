@@ -18,21 +18,6 @@ const AuthProvider = ({ children }) => {
   let baseUrl = import.meta.env.VITE_APP_AUTHENTICATION_DJANGO_API_URL
   const authAxios = createAxiosInstance(baseUrl); // Authentication base URL
 
-  function actionPostLoginOrSubmit(data) {    
-    setUser(data.user);
-    sessionStorage.setItem('user', JSON.stringify(data.user));
-    if (data.school) {
-      setSchool(data.school)
-      sessionStorage.setItem('school',  JSON.stringify(data.school));
-    }
-    setAccessToken(data['access_token'])
-    setRefreshToken(data['refresh_token'])
-    setIsAuthenticated(true)
-    navigate('/homepage');
-    return { success: true};
-  }
-
-
   async function postRequest(dataToSubmit, endpoint) {
     const fullEndpoint = `${baseUrl}${endpoint}`;
     const postResponse = await authAxios.post(fullEndpoint, dataToSubmit);
@@ -52,36 +37,46 @@ const AuthProvider = ({ children }) => {
     setAuthenticationError(null)
     try {
       let response = await postRequest(dataToSubmit, endpoint)
-      if (response.status === 200 || response.status === 201) {
-        actionPostLoginOrSubmit(response.data);
-      }
-    
+      return response
     } catch (err) {
       setAuthenticationError(err.error_messages)
     }
   };
 
 
+  const setAuthenticationContextData = (data) => {  
+    sessionStorage.setItem('user', JSON.stringify(data.user))
+    sessionStorage.setItem('school', JSON.stringify(data.school))
+    setUser(data.user);
+    setSchool(data.school)
+    setAccessToken(data['access_token'])
+    setRefreshToken(data['refresh_token'])
+    setIsAuthenticated(true)
+  }
 
 
   // Function to refresh the access token
   const refreshAccessToken = async () => {
     try {
       let user = sessionStorage.getItem("user")
+      let school = sessionStorage.getItem("school")
       if(!accessToken){
         const response = await authAxios.post(`${baseUrl}/token/refresh/`)
         let responseData = response.data.data;
         let newAccessToken = responseData.access_token
         if (response.data.success) {
           user = responseData.user
+          school = responseData.school
           setAccessToken(newAccessToken);
           setRefreshToken(responseData.refresh_token)
-          setUser(user)
           setIsAuthenticated(true)
+          setUser(user)
+          setSchool(school)
         }
         authAxios.defaults.headers['Authorization'] = `Bearer ${newAccessToken}`; // Update the Axios default Authorization header
       }
-      setUser(user)
+      setUser(JSON.parse(user))
+      setSchool(JSON.parse(school))
     } catch (err) {
       console.error("Token refresh failed:", err);
       logout();
@@ -120,7 +115,7 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ accessToken, refreshToken, user, school, authenticationError, authenticationAction, logout, refreshAccessToken, handleRequest, isAuthenticated, isAuthLoading }}>
+    <AuthContext.Provider value={{ accessToken, refreshToken, user, school, authenticationError, authenticationAction, logout, refreshAccessToken, handleRequest, isAuthenticated, isAuthLoading, setAuthenticationContextData}}>
       {children}
     </AuthContext.Provider>
   );

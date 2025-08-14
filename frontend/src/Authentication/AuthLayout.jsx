@@ -14,7 +14,7 @@ const AuthLayout = ({ children }) => {
   const navigate = useNavigate(); // Instantiate useNavigate
   let baseUrl = import.meta.env.VITE_APP_AUTHENTICATION_DJANGO_API_URL
   let endpoint = loginFormState ? '/login/' : '/school/'
-  const { authenticationAction, authenticationError } = useAuth();
+  const { authenticationAction, authenticationError, user, isAuthenticated, setAuthenticationContextData } = useAuth();
   const [isLoadingModules, setIsLoadingModules] = useState(true);
 
 
@@ -22,6 +22,14 @@ const AuthLayout = ({ children }) => {
     generateModuleOptions()
 
   }, [])
+
+  useEffect(() => {
+    console.log(user)
+    if(user && isAuthenticated){
+      console.log('Is Authenticated, time for a redirect!')
+      navigate('/homepage')
+    }
+  }, [user])
 
    // Watch for authentication error changes
    useEffect(() => {
@@ -82,12 +90,16 @@ const AuthLayout = ({ children }) => {
   };
 
 
+
   async function customHandleSubmit(e, formData, setIsSubmitting, setError) {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
     let dataToSubmit = loginFormState ? formData : createSchoolDataManipulation(formData)
-    await authenticationAction(dataToSubmit, endpoint)    
+    let response = await authenticationAction(dataToSubmit, endpoint)
+    if(response.status === 200 || response.status === 201){    
+    setAuthenticationContextData(response.data)
+    }
     setIsSubmitting(false);
 
   }
